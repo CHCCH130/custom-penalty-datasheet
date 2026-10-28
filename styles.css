@@ -419,3 +419,24 @@ html, body { overflow-anchor: none; }
 :root[data-theme="emerald"] th { background:#e8eeff; }
 :root[data-theme="emerald"] .signal-card:hover,
 :root[data-theme="emerald"] .signal-card.is-active { background:linear-gradient(145deg,#fff,#eef1ff); }
+
+/* 案例明细：中文字符列宽、单行日期、四行单元格滚动。 */
+.details-table-section .detail-cases-table { table-layout:fixed; width:calc(117em + 44ch + 306px); min-width:0; font-size:13px; }
+.detail-cases-table .detail-col-decision,.detail-cases-table .detail-col-party,.detail-cases-table .detail-col-reason { width:calc(10em + 18px); }
+.detail-cases-table .detail-col-customs { width:calc(5em + 18px); }
+.detail-cases-table .detail-col-cargo { width:calc(15em + 18px); }
+.detail-cases-table .detail-col-date { width:calc(10ch + 18px); }
+.detail-cases-table .detail-col-code { width:calc(12ch + 18px); }
+.detail-cases-table .detail-col-money { width:calc(9em + 18px); }
+.detail-cases-table .detail-col-multiple { width:calc(7em + 18px); }
+.detail-cases-table .detail-col-document { width:calc(6em + 18px); }
+.detail-cases-table td { padding:10px 9px; line-height:1.5; vertical-align:top; }
+.detail-cases-table .detail-cell-scroll { width:calc(100% + 8px); height:6em; overflow-x:hidden; overflow-y:auto; scrollbar-gutter:stable; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.5; }
+.detail-cases-table .detail-cell-scroll.is-scrollable { overscroll-behavior-y:contain; }
+.detail-cases-table .detail-cell-scroll::-webkit-scrollbar { width:8px; }
+.detail-cases-table .detail-cell-scroll::-webkit-scrollbar-track { background:transparent; }
+.detail-cases-table .detail-cell-scroll::-webkit-scrollbar-thumb { border:2px solid transparent; border-radius:8px; background:var(--theme-accent,var(--aqua)); background-clip:padding-box; }
+.detail-cases-table .detail-cell-scroll:focus-visible { outline:2px solid var(--theme-accent,var(--aqua)); outline-offset:1px; }
+.detail-cases-table .detail-date-cell .detail-cell-scroll { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.detail-cases-table .party-name { display:block; width:auto; max-height:none; overflow:visible; -webkit-line-clamp:unset; line-clamp:unset; line-height:inherit; }
+.detail-cases-table .reason-button { display:block; max-width:100%; white-space:normal; overflow-wrap:anywhere; line-height:inherit; }
