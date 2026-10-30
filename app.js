@@ -1,7 +1,7 @@
 const state = {
   cases: [], dashboardRecords: [], dataVersion: '', activeView: 'dashboard', activeSignal: '', activeRiskType: '', activeRiskSecondary: '', activeRiskItem: '', activeRiskProduct: '', activeChartType: '', activeCustoms: '', activePenaltyCustoms: '', majorCasesExpanded: false, charts: {},
   dashboardFilters: { start: '', end: '', query: '' },
-  detailFilters: { start: '', end: '', scope: 'all', customs: '', type: '', query: '' },
+  detailFilters: { start: '', end: '', scope: 'all', customs: '', penaltyCustoms: '', type: '', query: '' }, dashboardScrollY: 0,
   drillQuery: '',
   customsQuery: '',
   sort: { field: 'penaltyDate', direction: 'desc' }, page: 1, pageSize: 20
@@ -9,6 +9,7 @@ const state = {
 const detailFields = {
   start: document.getElementById('detail-start-date'), end: document.getElementById('detail-end-date'),
   scope: document.getElementById('detail-scope-filter'), customs: document.getElementById('detail-customs-filter'),
+  penaltyCustoms: document.getElementById('detail-penalty-customs-filter'),
   type: document.getElementById('detail-type-filter'), query: document.getElementById('detail-query-filter')
 };
 const status = document.getElementById('data-status');
@@ -33,8 +34,10 @@ const typesOf = item => Array.isArray(item.types) && item.types.length ? item.ty
 const isVisibleCase = item => { const pairs = (Array.isArray(item.classificationPairs) ? item.classificationPairs : []).filter(pair => clean(pair?.primary)); return pairs.length ? !pairs.some(pair => clean(pair.primary) === '收缴清单') : !typesOf(item).includes('收缴清单'); };
 const caseDate = item => /^\d{4}-\d{2}-\d{2}$/.test(item.penaltyDate || '') ? new Date(`${item.penaltyDate}T00:00:00`) : null;
 function setOptions(select, values, placeholder) { const saved = select.value; select.innerHTML = `<option value="">${placeholder}</option>${values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`; select.value = Array.from(select.options).some(option => option.value === saved) ? saved : ''; }
+// 按案件数计算占比；不使用环形图自动按TOP5合计计算的percent。
+const caseShare = (count, total) => (total ? count / total * 100 : 0).toFixed(2);
 function countBy(records, key) { return records.reduce((map, item) => { const name = item[key] || '未分类'; map.set(name, (map.get(name) || 0) + 1); return map; }, new Map()); }
-function countByType(records) { const map = new Map(); records.forEach(item => typesOf(item).forEach(type => map.set(type, (map.get(type) || 0) + 1))); return map; }
+function countByType(records) { const map = new Map(); records.forEach(item => [...new Set(typesOf(item))].forEach(type => map.set(type, (map.get(type) || 0) + 1))); return map; }
 const secondaryAliases = new Map([['商品编码申报错误', '商品编号申报错误']]);
 function classificationPairsOf(item) {
   const savedPairs = Array.isArray(item.classificationPairs) ? item.classificationPairs : [];
@@ -78,7 +81,7 @@ function formatDateZh(value) {
 }
 function dashboardCases() { const { start, end, query } = state.dashboardFilters; const q = query.toLowerCase(); return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!start || date >= start) && (!end || date <= end) && (!q || clean(item.searchText).toLowerCase().includes(q)); }); }
 function signalRecords(id) { const records = state.dashboardRecords; if (id === 'company') return records.filter(item => item.companyProduct); if (id === 'peer') return records.filter(item => item.peerCompany); return records; }
-function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.type || typesOf(item).includes(f.type)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
+function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.penaltyCustoms || item.customs === f.penaltyCustoms) && (!f.type || typesOf(item).includes(f.type)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
 
 function datedRecords(records, monthsAgoStart, monthsAgoEnd = 0) {
   const dates = records.map(caseDate).filter(Boolean); if (!dates.length) return [];
@@ -109,9 +112,28 @@ function renderMajorCases(records) {
   trigger.classList.toggle('is-open', state.majorCasesExpanded);
   target.hidden = !state.majorCasesExpanded;
   if (!state.majorCasesExpanded) return;
-  target.innerHTML = `<div class="major-cases-heading"><div><p class="eyebrow">MAJOR CASES</p><h2>重大案件明细</h2><p>按处罚金额从高到低排列；当前筛选范围内共 ${cases.length} 起。</p></div><button id="close-major-cases" type="button">收起 ×</button></div><div class="major-cases-list">${cases.length ? cases.map(item => `<article class="major-case"><div class="major-case-meta"><span>${escapeHtml(item.penaltyDate || '日期未填')} · ${escapeHtml(item.customs || '处罚海关未填')}</span><b>${escapeHtml(penaltyLabel(item))}</b></div><h3>${escapeHtml(item.party || '当事人未填')}</h3><p class="major-case-cargo">涉案货物：${escapeHtml(item.cargo || '未填写')}</p><p class="major-case-reason">处罚原因：${escapeHtml(item.reason || '未分类')}</p><button class="major-case-facts-button" type="button" data-facts-id="${escapeHtml(item.id)}">查看完整违法事实</button><footer>${escapeHtml(item.decisionNo || item.id)}</footer></article>`).join('') : '<p class="major-cases-empty">当前筛选范围内暂无重大案件。</p>'}</div>`;
-  target.querySelector('#close-major-cases').addEventListener('click', () => { state.majorCasesExpanded = false; renderMajorCases(state.dashboardRecords); });
+  target.innerHTML = `<div class="major-cases-heading"><div><p class="eyebrow">MAJOR CASES</p><h2>重大案件明细</h2><p>按处罚金额从高到低排列；当前筛选范围内共 ${cases.length} 起，可上下滚动查看全部案件。</p></div><button id="close-major-cases" type="button">收起 ×</button></div><div class="major-cases-list" tabindex="0" role="region" aria-label="重大案件列表，可上下滚动查看">${cases.length ? cases.map(item => `<article class="major-case"><div class="major-case-meta"><span>${escapeHtml(item.penaltyDate || '日期未填')} · ${escapeHtml(item.customs || '处罚海关未填')}</span><b>${escapeHtml(penaltyLabel(item))}</b></div><h3>${escapeHtml(item.party || '当事人未填')}</h3><p class="major-case-cargo">涉案货物：${escapeHtml(item.cargo || '未填写')}</p><p class="major-case-reason">处罚原因：${escapeHtml(item.reason || '未分类')}</p><button class="major-case-facts-button" type="button" data-facts-id="${escapeHtml(item.id)}">查看完整违法事实</button><footer>${escapeHtml(item.decisionNo || item.id)}</footer></article>`).join('') : '<p class="major-cases-empty">当前筛选范围内暂无重大案件。</p>'}</div><div class="major-cases-footer"><button id="close-major-cases-bottom" class="reset-button" type="button">收起</button></div>`;
+  const collapse = () => {
+    state.majorCasesExpanded = false;
+    renderMajorCases(state.dashboardRecords);
+    trigger.focus({ preventScroll: true });
+    trigger.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+  };
+  target.querySelector('#close-major-cases').addEventListener('click', collapse);
+  target.querySelector('#close-major-cases-bottom').addEventListener('click', collapse);
+  syncMajorCaseViewport();
 }
+function syncMajorCaseViewport() {
+  const list = document.querySelector('#major-cases-detail .major-cases-list');
+  if (!list || !list.getClientRects().length) return;
+  const cards = [...list.querySelectorAll('.major-case')];
+  // 桌面端三列三行展示9项，其余案件仍完整保留在滚动区内。
+  if (cards.length <= 9) { list.style.maxHeight = 'none'; return; }
+  const limit = Math.max(...cards.slice(0, 9).map(card => card.offsetTop + card.offsetHeight));
+  list.style.maxHeight = `${limit}px`;
+}
+window.addEventListener('resize', syncMajorCaseViewport, { passive: true });
+
 function observationWindow(records) {
   const endKey = dashboardReferenceEnd(records);
   if (!endKey) return { start: '', end: '' };
@@ -132,16 +154,18 @@ function renderNationalObservation(records) {
   const typeRow = topEntries(countByType(recent), 1)[0];
   const highType = typeRow?.[0] || '暂无数据';
   const highCount = typeRow?.[1] || 0;
-  const highShare = recent.length ? Math.round((highCount / recent.length) * 100) : 0;
+  const highShare = recent.length ? Math.round(highCount / recent.length * 100) : 0;
   const typeRecords = recent.filter(item => typesOf(item).includes(highType));
   const secondaryRow = topEntries(countBySecondary(typeRecords, highType), 1)[0];
   const secondary = secondaryRow?.[0] || '暂无数据';
   const secondaryCount = secondaryRow?.[1] || 0;
   const secondaryShare = typeRecords.length ? Math.round((secondaryCount / typeRecords.length) * 100) : 0;
-  const label = `${window.start.replaceAll('-', '/')} 至 ${window.end.replaceAll('-', '/')}`;
+  const actualStart = f.start && f.start > window.start ? f.start : window.start;
+  const label = `${actualStart.replaceAll('-', '/')} 至 ${window.end.replaceAll('-', '/')}`;
   document.querySelector('.observation-period').textContent = `统计时间：近三个月（${label}，共 ${recent.length.toLocaleString('zh-CN')} 起案件）`;
   document.getElementById('national-observation').textContent = '';
-  document.getElementById('national-observation-metrics').innerHTML = `<article class="observation-stat"><strong>高发处罚类型</strong><b>${escapeHtml(highType)}</b><small>${highCount.toLocaleString('zh-CN')} 起 · 占比 ${highShare}%</small></article><article class="observation-stat"><strong>高频违法行为</strong><b>${escapeHtml(secondary)}</b><small>${highType}下 ${secondaryCount.toLocaleString('zh-CN')} 起 · 占比 ${secondaryShare}%</small></article>`;
+  const highShareExplanation = '高发处罚类型占统计期内全部案件数比例';
+  document.getElementById('national-observation-metrics').innerHTML = `<article class="observation-stat"><strong>高发处罚类型</strong><b>${escapeHtml(highType)}</b><small>${highCount.toLocaleString('zh-CN')} 起 · 占比 <span class="observation-share" tabindex="0" title="${escapeHtml(highShareExplanation)}" aria-label="${escapeHtml(highShareExplanation)}">${highShare}%</span></small></article><article class="observation-stat"><strong>高频违法行为</strong><b>${escapeHtml(secondary)}</b><small>${highType}下 ${secondaryCount.toLocaleString('zh-CN')} 起 · 占比 ${secondaryShare}%</small></article>`;
 }
 function renderIntersectionRadar() {
   const national = signalRecords('national'), company = signalRecords('company'), peer = signalRecords('peer');
@@ -269,7 +293,8 @@ function renderCustomsDistributionSummary(records) {
   if (!penaltyCustoms.some(([name]) => name === state.activePenaltyCustoms)) state.activePenaltyCustoms = penaltyCustoms[0]?.[0] || '';
   const selectedPenalty = selected.filter(item => item.customs === state.activePenaltyCustoms);
   const typeRows = topEntries(countByType(selectedPenalty), 3);
-  target.innerHTML = `<div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activeCustoms)} · 处罚海关 TOP 5</strong><small>点击海关名称查看其处罚类型</small></div><ol>${penaltyCustoms.map(([name, count], index) => `<li><button type="button" class="customs-summary-button ${name === state.activePenaltyCustoms ? 'is-selected' : ''}" data-penalty-customs="${escapeHtml(name)}"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol></div><div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activePenaltyCustoms || '处罚海关')} · 处罚类型 TOP 3</strong><small>按案件数从高到低排列</small></div><ol>${typeRows.map(([name, count], index) => `<li><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selectedPenalty.length, 1)) * 100).toFixed(1)}%</b></li>`).join('') || '<li>暂无处罚类型数据</li>'}</ol></div>`;
+  target.innerHTML = `<div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activeCustoms)} · 处罚海关 TOP 5</strong><small>点击海关名称查看其处罚类型</small></div><ol>${penaltyCustoms.map(([name, count], index) => `<li><button type="button" class="customs-summary-button ${name === state.activePenaltyCustoms ? 'is-selected' : ''}" data-penalty-customs="${escapeHtml(name)}"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol></div><div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activePenaltyCustoms || '处罚海关')} · 处罚类型 TOP 3</strong><small>按案件数从高到低排列</small></div><ol>${typeRows.map(([name, count], index) => `<li><button type="button" class="customs-summary-button customs-type-link" data-customs-type="${escapeHtml(name)}" title="查看${escapeHtml(state.activePenaltyCustoms)}的${escapeHtml(name)}案件明细"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selectedPenalty.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚类型数据</li>'}</ol></div>`;
+  target.querySelectorAll('[data-customs-type]').forEach(button => button.addEventListener('click', () => openCustomsDetails(button.dataset.customsType || '')));
   target.querySelectorAll('[data-penalty-customs]').forEach(button => button.addEventListener('click', () => { state.activePenaltyCustoms = button.dataset.penaltyCustoms || ''; renderCustomsDistributionSummary(records); }));
 }
 function renderCharts(records) {
@@ -292,16 +317,16 @@ function renderCharts(records) {
   const chartBorder = themed ? '#10283a' : '#f8fbfd';
   const tooltipStyle = { backgroundColor: '#102b45', borderColor: '#6ba9d7', borderWidth: 1, padding: 11, textStyle: { color: '#f5fbff', fontSize: 12, lineHeight: 19 } };
   state.charts.type.setOption({ animationDurationUpdate: 250, tooltip: { show: false }, color: ['#3295df', '#31bcb1', '#897af0', '#f0a44f', '#e06c8a'], legend: { type: 'scroll', orient: 'vertical', left: 10, top: 'middle', textStyle: { color: chartText, fontSize: 12 } }, series: [{ type: 'pie', radius: ['44%', '68%'], center: ['62%', '52%'], label: { show: false }, itemStyle: { borderColor: chartBorder, borderWidth: 2 }, data: typeEntries.map(([name, value]) => ({ name, value })) }], graphic: empty ? [{ type: 'text', left: 'center', top: 'middle', style: { text: '暂无案件', fill: chartText, fontSize: 14 } }] : [] }, true);
-  state.charts.type.setOption({ series: [{ label: { show: true, formatter: '{name|{b}}\n{percent|{d}%}', rich: { name: { color: chartStrong, fontSize: 11, lineHeight: 16 }, percent: { color: '#35c2bb', fontSize: 13, fontWeight: 'bold', lineHeight: 17 } } }, labelLine: { show: true, length: 8, length2: 6, lineStyle: { color: chartLine } } }] });
+  state.charts.type.setOption({ series: [{ label: { show: true, formatter: params => `{name|${params.name}}\n{percent|${caseShare(params.value, records.length)}%}`, rich: { name: { color: chartStrong, fontSize: 11, lineHeight: 16 }, percent: { color: '#35c2bb', fontSize: 13, fontWeight: 'bold', lineHeight: 17 } } }, labelLine: { show: true, length: 8, length2: 6, lineStyle: { color: chartLine } } }] });
   state.charts.customs.setOption({ animationDurationUpdate: 250, grid: { left: 10, right: 42, top: 10, bottom: 12, containLabel: true }, tooltip: { ...tooltipStyle, trigger: 'axis', confine: true, axisPointer: { type: 'shadow' }, formatter: params => customsTooltip(params, records) }, xAxis: { type: 'value', minInterval: 1, axisLabel: { color: chartText }, splitLine: { lineStyle: { color: chartGrid } } }, yAxis: { type: 'category', inverse: true, data: customs.map(([name]) => name), axisLabel: { color: chartStrong, width: 130, overflow: 'truncate' }, axisTick: { show: false }, axisLine: { show: false } }, series: [{ type: 'bar', barMaxWidth: 21, data: customs.map(([, value]) => value), itemStyle: { color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ offset: 0, color: '#287fc4' }, { offset: 1, color: '#3bc4b5' }]), borderRadius: [0, 4, 4, 0] }, label: { show: true, position: 'right', color: chartStrong, formatter: '{c}' } }], graphic: empty ? [{ type: 'text', left: 'center', top: 'middle', style: { text: '暂无案件', fill: chartText, fontSize: 14 } }] : [] }, true);
   renderTypeBreakdown(records);
   renderTypeCustomsBreakdown(records);
   renderCustomsDistributionSummary(records);
 }
 function recordsToCsv(records, detailFormat = false) {
-  const headers = ['处罚决定书文号', '处罚海关', '处罚日期', '违法日期', '当事人', '涉案货物', '处罚原因', '检验检疫对象', '申报商品编号', '实际商品编码', '涉案金额（万元）', '违法经营额（万元）', '漏缴税金额（万元）', '罚款金额（万元）', '追缴金额（万元）', '处罚合计（万元）', detailFormat ? '罚款倍数' : '罚款幅度', '违法行为一级分类', '违法行为二级分类', '涉案物项二级分类', '直属海关'];
+  const headers = ['处罚决定书文号', '处罚海关', '处罚日期', '违法日期', '当事人', '涉案货物', '品牌', '规格型号', '其他要素', '处罚原因', '检验检疫对象', '申报商品编号', '实际商品编码', '涉案金额（万元）', '违法经营额（万元）', '漏缴税金额（万元）', '罚款金额（万元）', '追缴金额（万元）', '处罚合计（万元）', detailFormat ? '罚款倍数' : '罚款幅度', '违法行为一级分类', '违法行为二级分类', '涉案物项二级分类', '直属海关'];
   const rows = records.map(item => [
-    item.decisionNo, item.customs, item.penaltyDate, item.violationDate, item.party, item.cargo, item.reason, item.lawInspectionObject || '',
+    item.decisionNo, item.customs, item.penaltyDate, item.violationDate, item.party, item.cargo, item.brand || '', item.specification || '', item.otherElements || '', item.reason, item.lawInspectionObject || '',
     item.declaredCode, item.actualCode, wan(item.amount), wan(item.illegalOperationAmount), wan(item.taxUnderpaymentAmount),
     wan(item.fine), wan(item.recoveryAmount), wan(detailFormat ? detailPenaltyTotal(item) : penaltyTotal(item)), detailFormat ? detailFineMultiple(item.fineRate) : rate(item.fineRate),
     (item.types || [item.type]).join('、'), item.reason || '', item.secondaryItem || '', item.parentCustoms
@@ -364,7 +389,8 @@ function detailCell(content, label, className = '') { return `<td${className ? `
 function row(item) { return `<tr>${[
   detailCell(escapeHtml(item.decisionNo), '处罚决定书文号'), detailCell(escapeHtml(item.customs), '处罚海关'),
   detailCell(escapeHtml(item.penaltyDate), '处罚日期', 'detail-date-cell'), detailCell(escapeHtml(item.violationDate), '违法日期', 'detail-date-cell'),
-  detailCell(partyCell(item), '当事人'), detailCell(escapeHtml(item.cargo), '涉案货物'), detailCell(factsCell(item), '处罚原因'),
+  detailCell(partyCell(item), '当事人'), detailCell(escapeHtml(item.cargo), '涉案货物'),
+  detailCell(escapeHtml(item.brand || ''), '品牌'), detailCell(escapeHtml(item.specification || ''), '规格型号'), detailCell(escapeHtml(item.otherElements || ''), '其他要素'), detailCell(factsCell(item), '处罚原因'),
   detailCell(escapeHtml(item.declaredCode), '申报商品编号'), detailCell(escapeHtml(item.actualCode), '实际商品编码'),
   detailCell(wan(item.amount), '涉案金额（万元）', 'number-cell'), detailCell(wan(item.illegalOperationAmount), '违法经营额（万元）', 'number-cell'),
   detailCell(wan(item.taxUnderpaymentAmount), '漏缴税金额（万元）', 'number-cell'), detailCell(wan(item.fine), '罚款金额（万元）', 'number-cell'),
@@ -373,12 +399,53 @@ function row(item) { return `<tr>${[
 ].join('')}</tr>`; }
 function syncDetailCellScrolling() { document.querySelectorAll('#detail-table .detail-cell-scroll').forEach(cell => { const scrollable = cell.clientHeight > 0 && cell.scrollHeight > cell.clientHeight + 1; cell.classList.toggle('is-scrollable', scrollable); if (scrollable) cell.setAttribute('tabindex', '0'); else cell.removeAttribute('tabindex'); }); }
 function sorted(records) { const numeric = new Set(['amount', 'illegalOperationAmount', 'taxUnderpaymentAmount', 'fine', 'recoveryAmount', 'penaltyAmount', 'fineRate']); return records.slice().sort((left, right) => { const a = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(left) : left[state.sort.field], b = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(right) : right[state.sort.field], aMissing = a === null || a === undefined || a === '', bMissing = b === null || b === undefined || b === ''; if (aMissing || bMissing) return aMissing === bMissing ? 0 : (aMissing ? 1 : -1); const result = numeric.has(state.sort.field) ? Number(a) - Number(b) : String(a).localeCompare(String(b), 'zh-CN'); return state.sort.direction === 'asc' ? result : -result; }); }
-function renderDetails() { const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="17">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
-function updateDetailFilters() { Object.entries(detailFields).forEach(([key, field]) => { state.detailFilters[key] = clean(field.value); }); state.page = 1; renderDetails(); }
+function renderDetails() { const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="20">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
+function syncPenaltyCustomsOptions() {
+  const parent = state.detailFilters.customs;
+  const selected = state.detailFilters.penaltyCustoms;
+  setOptions(detailFields.penaltyCustoms, unique(state.cases.filter(item => !parent || item.parentCustoms === parent).map(item => item.customs)), '全部处罚海关');
+  detailFields.penaltyCustoms.value = Array.from(detailFields.penaltyCustoms.options).some(option => option.value === selected) ? selected : '';
+  state.detailFilters.penaltyCustoms = detailFields.penaltyCustoms.value;
+}
+function openCustomsDetails(type) {
+  state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: state.activeCustoms, penaltyCustoms: state.activePenaltyCustoms, type, scope: 'all' };
+  Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key]; });
+  syncPenaltyCustomsOptions();
+  state.page = 1;
+  renderDetails();
+  switchView('details');
+}
+function updateDetailFilters() { Object.entries(detailFields).forEach(([key, field]) => { state.detailFilters[key] = clean(field.value); }); syncPenaltyCustomsOptions(); state.page = 1; renderDetails(); }
+function changeDetailPage(step) {
+  document.documentElement.style.overflowAnchor = 'none';
+  state.page += step;
+  renderDetails();
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); document.documentElement.style.overflowAnchor = ''; });
+}
 function updateDashboardFilters() { state.dashboardFilters.start = clean(document.getElementById('dashboard-start-date').value); state.dashboardFilters.end = clean(document.getElementById('dashboard-end-date').value); state.dashboardFilters.query = ''; state.activeSignal = ''; state.activeRiskType = ''; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; state.activeChartType = window.CustomsClassificationDrill?.isOpen() ? '商品归类' : ''; state.activeCustoms = ''; state.activePenaltyCustoms = ''; state.drillQuery = ''; renderDashboard(); }
-function switchView(view) { state.activeView = view; const dashboard = view === 'dashboard'; document.getElementById('dashboard-panel').hidden = !dashboard; document.getElementById('details-panel').hidden = dashboard; document.getElementById('view-switch-text').textContent = dashboard ? '进入案例明细 →' : '返回风险看板'; document.getElementById('view-switch').setAttribute('aria-label', dashboard ? '进入案例明细' : '返回风险看板'); if (dashboard) setTimeout(() => Object.values(state.charts).forEach(chart => chart.resize()), 0); else requestAnimationFrame(syncDetailCellScrolling); window.dispatchEvent(new Event('scroll')); }
+function switchView(view) {
+  const previous = state.activeView;
+  if (previous === 'dashboard' && view === 'details') state.dashboardScrollY = window.scrollY;
+  document.documentElement.style.overflowAnchor = 'none';
+  state.activeView = view;
+  const dashboard = view === 'dashboard';
+  document.getElementById('dashboard-panel').hidden = !dashboard;
+  document.getElementById('details-panel').hidden = dashboard;
+  document.getElementById('view-switch-text').textContent = dashboard ? '进入案例明细 →' : '返回风险看板';
+  document.getElementById('view-switch').setAttribute('aria-label', dashboard ? '进入案例明细' : '返回风险看板');
+  if (previous !== view) window.scrollTo({ top: dashboard ? state.dashboardScrollY : 0, left: 0, behavior: 'instant' });
+  requestAnimationFrame(() => {
+    if (dashboard) { Object.values(state.charts).forEach(chart => chart.resize()); syncMajorCaseViewport(); }
+    else syncDetailCellScrolling();
+    if (previous !== view) window.scrollTo({ top: dashboard ? state.dashboardScrollY : 0, left: 0, behavior: 'instant' });
+    window.dispatchEvent(new Event('scroll'));
+    document.documentElement.style.overflowAnchor = '';
+  });
+}
+
 function openFacts(id) { const item = state.cases.find(caseItem => caseItem.id === id); if (!item) return; document.getElementById('facts-title').textContent = `${item.id} · ${item.reason || '违法事实'}`; document.getElementById('facts-content').textContent = item.facts || '案例库暂未填写违法事实。'; dialog.showModal(); }
-function applyPayload(payload, initial = false) { const version = payload.version || `${payload.updatedAt || ''}:${(payload.cases || []).length}`; if (!initial && version === state.dataVersion) return false; state.cases = (payload.cases || []).filter(isVisibleCase); setOptions(detailFields.customs, unique(state.cases.map(item => item.parentCustoms)), '全部直属海关'); setOptions(detailFields.type, unique(state.cases.flatMap(typesOf)), '全部类型'); state.dataVersion = version; if (initial) { state.charts.type = echarts.init(document.getElementById('type-chart')); state.charts.customs = echarts.init(document.getElementById('customs-chart')); state.charts.type.on('click', params => { state.activeChartType = params.name; renderTypeBreakdown(state.dashboardRecords); renderTypeCustomsBreakdown(state.dashboardRecords); }); state.charts.customs.on('click', params => { state.activeCustoms = params.name || ''; state.activePenaltyCustoms = ''; renderCustomsDistributionSummary(state.dashboardRecords); }); } status.textContent = `已加载 ${state.cases.length.toLocaleString('zh-CN')} 起案件`; renderDashboard(); renderDetails(); return true; }
+function applyPayload(payload, initial = false) { const version = payload.version || `${payload.updatedAt || ''}:${(payload.cases || []).length}`; if (!initial && version === state.dataVersion) return false; state.cases = (payload.cases || []).filter(isVisibleCase); setOptions(detailFields.customs, unique(state.cases.map(item => item.parentCustoms)), '全部直属海关'); setOptions(detailFields.type, unique(state.cases.flatMap(typesOf)), '全部类型'); syncPenaltyCustomsOptions(); state.dataVersion = version; if (initial) { state.charts.type = echarts.init(document.getElementById('type-chart')); state.charts.customs = echarts.init(document.getElementById('customs-chart')); state.charts.type.on('click', params => { state.activeChartType = params.name; renderTypeBreakdown(state.dashboardRecords); renderTypeCustomsBreakdown(state.dashboardRecords); }); state.charts.customs.on('click', params => { state.activeCustoms = params.name || ''; state.activePenaltyCustoms = ''; renderCustomsDistributionSummary(state.dashboardRecords); }); } status.textContent = `已加载 ${state.cases.length.toLocaleString('zh-CN')} 起案件`; renderDashboard(); renderDetails(); return true; }
 async function loadCases(initial = false) { const inline = window.__CUSTOMS_CASES_DATA__; if (window.location.protocol === 'file:' && inline) return applyPayload(inline, initial); const response = await fetch(`./data/cases.json?version=${Date.now()}`, { cache: 'no-store' }); if (!response.ok) throw new Error('数据文件不可用'); return applyPayload(await response.json(), initial); }
 async function start() { try { await loadCases(true); window.setInterval(() => loadCases().catch(error => console.warn('看板自动更新失败：', error)), 10000); } catch (error) { status.textContent = '案件数据加载失败。请确认已先生成 data/cases.json。'; console.error(error); } }
 Object.values(detailFields).forEach(field => field.addEventListener('input', updateDetailFilters));
@@ -404,8 +471,8 @@ document.getElementById('major-cases-trigger').addEventListener('keydown', event
 document.getElementById('detail-sort-field').addEventListener('change', event => { state.sort.field = event.target.value; renderDetails(); });
 document.getElementById('detail-sort-order').addEventListener('click', () => { state.sort.direction = state.sort.direction === 'desc' ? 'asc' : 'desc'; renderDetails(); });
 document.getElementById('detail-page-size').addEventListener('change', event => { state.pageSize = Number(event.target.value); state.page = 1; renderDetails(); });
-document.getElementById('detail-prev-page').addEventListener('click', () => { state.page -= 1; renderDetails(); });
-document.getElementById('detail-next-page').addEventListener('click', () => { state.page += 1; renderDetails(); });
+document.getElementById('detail-prev-page').addEventListener('click', () => changeDetailPage(-1));
+document.getElementById('detail-next-page').addEventListener('click', () => changeDetailPage(1));
 document.getElementById('detail-reset-filters').addEventListener('click', () => { Object.entries(detailFields).forEach(([key, field]) => { field.value = key === 'scope' ? 'all' : ''; }); updateDetailFilters(); });
 document.getElementById('detail-export').addEventListener('click', exportDetailResults);
 document.getElementById('view-switch').addEventListener('click', () => switchView(state.activeView === 'dashboard' ? 'details' : 'dashboard'));

@@ -79,7 +79,7 @@ html, body { overflow-anchor: none; }
 @media (max-width:520px) { .dashboard-export { width:100%; } .dashboard-export-btn { flex:1; } }
 
 /* 风险钻取：将搜索与导出收敛到处罚摘要，筛选动作可单独撤销。 */
-.filter-band { grid-template-columns:repeat(6,minmax(120px,1fr)) auto auto; }
+.filter-band { grid-template-columns:repeat(7,minmax(120px,1fr)) auto auto; }
 .drill-column h3,.summary-heading h3 { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .drill-clear-filter { flex:0 0 auto; padding:2px 5px; border:1px solid #9ac2d0; border-radius:2px; color:#197b84; background:#fff; font-size:10px; font-weight:400; }
 .drill-clear-filter:hover { background:#e8f6f6; }
@@ -421,10 +421,14 @@ html, body { overflow-anchor: none; }
 :root[data-theme="emerald"] .signal-card.is-active { background:linear-gradient(145deg,#fff,#eef1ff); }
 
 /* 案例明细：中文字符列宽、单行日期、四行单元格滚动。 */
-.details-table-section .detail-cases-table { table-layout:fixed; width:calc(117em + 44ch + 306px); min-width:0; font-size:13px; }
-.detail-cases-table .detail-col-decision,.detail-cases-table .detail-col-party,.detail-cases-table .detail-col-reason { width:calc(10em + 18px); }
+.details-table-section .detail-cases-table { table-layout:fixed; width:calc(145em + 44ch + 360px); min-width:0; font-size:13px; }
+.detail-cases-table .detail-col-decision,.detail-cases-table .detail-col-reason { width:calc(10em + 18px); }
+.detail-cases-table .detail-col-party { width:calc(8em + 18px); }
 .detail-cases-table .detail-col-customs { width:calc(5em + 18px); }
-.detail-cases-table .detail-col-cargo { width:calc(15em + 18px); }
+.detail-cases-table .detail-col-cargo { width:calc(10em + 18px); }
+.detail-cases-table .detail-col-brand { width:calc(10em + 18px); }
+.detail-cases-table .detail-col-specification { width:calc(10em + 18px); }
+.detail-cases-table .detail-col-elements { width:calc(15em + 18px); }
 .detail-cases-table .detail-col-date { width:calc(10ch + 18px); }
 .detail-cases-table .detail-col-code { width:calc(12ch + 18px); }
 .detail-cases-table .detail-col-money { width:calc(9em + 18px); }
@@ -440,3 +444,14 @@ html, body { overflow-anchor: none; }
 .detail-cases-table .detail-date-cell .detail-cell-scroll { white-space:nowrap; font-variant-numeric:tabular-nums; }
 .detail-cases-table .party-name { display:block; width:auto; max-height:none; overflow:visible; -webkit-line-clamp:unset; line-clamp:unset; line-height:inherit; }
 .detail-cases-table .reason-button { display:block; max-width:100%; white-space:normal; overflow-wrap:anywhere; line-height:inherit; }
+
+.customs-type-link { cursor:pointer; }
+.customs-type-link:hover,.customs-type-link:focus-visible { background:var(--surface-hover,#e8f3ff); outline:2px solid currentColor; outline-offset:-2px; }
+
+.observation-share { cursor:help; border-bottom:1px dotted currentColor; }
+
+/* 重大案件：九项可视区，完整列表上下滚动，底部可收起。 */
+.major-cases-list { position:relative; overflow-y:auto; overflow-x:hidden; align-content:start; scrollbar-gutter:stable; scrollbar-width:thin; scrollbar-color:var(--theme-accent,#83b7c8) transparent; overscroll-behavior-y:contain; }
+.major-cases-list:focus-visible { outline:2px solid var(--theme-accent,#168d90); outline-offset:3px; }
+.major-cases-footer { display:flex; justify-content:flex-end; margin-top:14px; }
+.major-cases-footer button { min-width:80px; }
