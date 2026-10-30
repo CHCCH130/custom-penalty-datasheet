@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-30 16:37:17",
-  "version": "2026-10-30T16:37:17.666333",
+  "updatedAt": "2026-10-30 17:02:05",
+  "version": "2026-10-30T17:02:05.154837",
   "source": "海关行政处罚案例库.xlsx / 案件信息",
   "companyProductsSource": "公司产品.xlsx / 组件",
   "peerCompaniesSource": "peer_companies.json / 同行企业主体库",
@@ -5414,9 +5414,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：可充电锂离子聚合物电池组",
+        "同类产品：可充电锂离子电池系统",
         "同类产品：可充电锂离子电池",
-        "同类产品：可充式锂离子电池组"
+        "同类产品：可充式锂离子电池"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -5776,9 +5776,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：继电器",
-        "同类产品：继电器座子",
-        "同类产品：固态继电器"
+        "同类产品：继电器母排",
+        "同类产品：三相继电器",
+        "同类产品：继电器座子"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -8403,9 +8403,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：镜头",
+        "同类产品：监控摄像镜头组件",
         "同类产品：摄像头",
-        "同类产品：监控摄像镜头组件"
+        "同类产品：镜头"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -15256,8 +15256,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：高度传感器",
-        "同类产品：传感器",
+        "同类产品：温度控制器盒",
+        "同类产品：控制器",
         "同类产品：温度控制器盒固定架"
       ],
       "peerCompany": "",
@@ -20657,9 +20657,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：柔性印刷电路板（新）",
-        "同类产品：软性印刷电路板",
-        "同类产品：柔性印刷电路板"
+        "同类产品：电路板",
+        "同类产品：印制电路板",
+        "同类产品：软性电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -21061,9 +21061,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：发光二极管（带连接线）",
+        "同类产品：激光二极管",
         "同类产品：有机发光二极管显示屏",
-        "同类产品：有机发光二极管显示模组"
+        "同类产品：发光二极管（带连接线）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -24655,9 +24655,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：存储用集成电路",
+        "同类产品：未封装集成电路",
+        "同类产品：集成电路测试仪（旧）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -30639,8 +30639,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：风扇",
-        "同类产品：散热风扇"
+        "同类产品：散热风扇",
+        "同类产品：风扇"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -32303,9 +32303,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：排插充电器",
-        "同类产品：有线充电器",
-        "同类产品：支架充电器用"
+        "同类产品：手机充电器",
+        "同类产品：干电池充电器",
+        "同类产品：充电器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -32864,9 +32864,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：可充电锂离子聚合物电池组",
-        "同类产品：成品配件(锂离子电池组)",
-        "同类产品：手机下盖模组(含锂离子电池组)"
+        "同类产品：手机下盖模组(含锂离子电池组)",
+        "同类产品：马达",
+        "同类产品：可充电锂离子电池系统"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -36985,8 +36985,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：磁铁",
         "同类产品：电机",
+        "同类产品：磁铁",
         "同类产品：钕铁硼磁铁"
       ],
       "peerCompany": "",
@@ -37746,8 +37746,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：平板电脑主板",
-        "同类产品：平板电脑"
+        "同类产品：平板电脑",
+        "同类产品：平板电脑主板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -38101,8 +38101,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：显示屏",
-        "同类产品：显示屏组件"
+        "同类产品：显示屏组件",
+        "同类产品：显示屏"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -42863,9 +42863,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电源",
-        "同类产品：不间断供电电源",
-        "同类产品：不间断电源"
+        "同类产品：不间断电源(旧)",
+        "同类产品：不间断电源",
+        "同类产品：电源"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -43673,9 +43673,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：模拟电话适配器",
+        "同类产品：电池模拟器",
         "同类产品：适配器",
-        "同类产品：电池模拟器"
+        "同类产品：模拟电话适配器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -48214,8 +48214,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8501109990",
-        "同类产品：微电机",
-        "同类产品：电机"
+        "同类产品：电机",
+        "同类产品：微电机"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -49026,9 +49026,9 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8505111000",
+        "同类产品：磁铁组件",
         "同类产品：磁铁",
-        "同类产品：磁铁组",
-        "同类产品：磁铁组件"
+        "同类产品：磁铁组"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -50039,9 +50039,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电源",
+        "同类产品：带接头电源线",
         "同类产品：电源线",
-        "同类产品：带接头电源线"
+        "同类产品：电源"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -51549,9 +51549,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：继电器",
         "同类产品：电路板",
-        "同类产品：继电器座子"
+        "同类产品：继电器",
+        "同类产品：继电器母排"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -52761,9 +52761,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：同轴连接器",
-        "同类产品：线缆连接器",
-        "同类产品：外壳/连接器用"
+        "同类产品：光纤连接器",
+        "同类产品：电路连接器",
+        "同类产品：I/O连接器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -55932,8 +55932,8 @@
       "actualCode": "8537109021",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电源",
-        "同类产品：控制器"
+        "同类产品：控制器",
+        "同类产品：电源"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -55985,8 +55985,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：磁铁",
-        "同类产品：钕铁硼磁铁"
+        "同类产品：钕铁硼磁铁",
+        "同类产品：磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -58410,9 +58410,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：摄像头",
         "同类产品：滤波器",
-        "同类产品：声表面波滤波器"
+        "同类产品：声表面波滤波器",
+        "同类产品：摄像头镜片"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -58869,8 +58869,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：接插件",
-        "同类产品：电路板"
+        "同类产品：电路板",
+        "同类产品：接插件"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -58923,8 +58923,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "同类产品：激光切割机(旧)",
-        "同类产品：PCB切割机",
-        "同类产品：光纤切割机"
+        "同类产品：光纤切割机",
+        "同类产品：激光切割机"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -63855,7 +63855,7 @@
       "companyProductMatches": [
         "同类产品：无线车载充电器套装",
         "同类产品：充电器",
-        "同类产品：车载充电器"
+        "同类产品：喇叭"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -64459,9 +64459,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：控制电路板",
-        "同类产品：电路板(新)",
-        "同类产品：电路板测试仪"
+        "同类产品：电路板固定块",
+        "同类产品：UI电路板盖",
+        "同类产品：电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -73071,8 +73071,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "同类产品：发光二极管（带连接线）",
-        "同类产品：有机发光二极管显示屏",
-        "同类产品：有机发光二极管显示模组"
+        "同类产品：有机发光二极管显示模组",
+        "同类产品：激光二极管"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -73788,9 +73788,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：车载手机支架",
         "同类产品：耳机支架",
-        "同类产品：摄像机支架"
+        "同类产品：摄像机支架",
+        "同类产品：车载手机支架"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -74544,9 +74544,9 @@
       "actualCode": "6704200000",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：手机摄像头",
         "同类产品：摄像头组装机",
-        "同类产品：网络摄像头（旧）"
+        "同类产品：高清摄像头",
+        "同类产品：摄像头屏蔽罩"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -74598,9 +74598,9 @@
       "actualCode": "7306900090",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：印刷电路板（新）",
-        "同类产品：电路板接插件",
-        "同类产品：电路板含支架"
+        "同类产品：电路板固定块",
+        "同类产品：UI电路板盖",
+        "同类产品：电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -75920,8 +75920,8 @@
       "actualCode": "3818009020",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：光敏半导体器件",
-        "同类产品：光敏半导体"
+        "同类产品：光敏半导体",
+        "同类产品：光敏半导体器件"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -76726,8 +76726,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8505111000",
-        "同类产品：磁铁",
-        "同类产品：钕铁硼磁铁"
+        "同类产品：钕铁硼磁铁",
+        "同类产品：磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -78698,9 +78698,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：笔记本电脑底座",
+        "同类产品：笔记本电脑",
         "同类产品：笔记本电脑底壳",
-        "同类产品：笔记本电脑"
+        "同类产品：笔记本电脑后盖"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -80115,9 +80115,9 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（实际商品编号）：8517799000",
-        "同类产品：交换机",
-        "同类产品：电脑服务器用零配件",
-        "同类产品：服务器(旧)"
+        "同类产品：服务器线缆组件",
+        "同类产品：服务器支架组件",
+        "同类产品：交换机"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -80471,9 +80471,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：传感器",
-        "同类产品：电缆",
-        "同类产品：马达"
+        "同类产品：线束",
+        "同类产品：马达",
+        "同类产品：电缆"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -83790,9 +83790,9 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8708999900",
-        "同类产品：蓝牙耳机固定支架",
-        "同类产品：固定件蓝牙耳机用",
-        "同类产品：蓝牙耳机(含充电器)"
+        "同类产品：蓝牙耳机右耳",
+        "同类产品：固定罩蓝牙耳机用",
+        "同类产品：蓝牙耳机含充电盒"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -84848,9 +84848,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：测试电路板",
-        "同类产品：控制电路板",
-        "同类产品：电路板(新)"
+        "同类产品：电路板",
+        "同类产品：印制电路板",
+        "同类产品：软性电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -85862,8 +85862,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8505111000",
-        "同类产品：磁铁",
-        "同类产品：钕铁硼磁铁"
+        "同类产品：钕铁硼磁铁",
+        "同类产品：磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -92251,9 +92251,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
+        "同类产品：磁铁组件",
         "同类产品：磁铁",
-        "同类产品：磁铁组",
-        "同类产品：磁铁组件"
+        "同类产品：磁铁组"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -92405,9 +92405,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：存储用集成电路",
+        "同类产品：未封装集成电路",
+        "同类产品：集成电路测试仪（旧）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -92766,9 +92766,9 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8536901100",
+        "同类产品：电路板",
         "同类产品：PCBA变流电源板",
-        "同类产品：PCB盖板",
-        "同类产品：PCB测试板"
+        "同类产品：PCB 转接板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -93378,8 +93378,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "同类产品：磁铁",
-        "同类产品：扇形磁铁",
-        "同类产品：方形磁铁"
+        "同类产品：方形磁铁",
+        "同类产品：扇形磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -93883,9 +93883,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：网络摄像机",
-        "同类产品：镜头",
-        "同类产品：工业摄像机"
+        "同类产品：高速摄像机（旧）",
+        "同类产品：摄像机镜头",
+        "同类产品：摄像机支架"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -96307,8 +96307,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：磁铁",
-        "同类产品：钕铁硼磁铁"
+        "同类产品：钕铁硼磁铁",
+        "同类产品：磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -100228,8 +100228,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（实际商品编号）：8507600090",
-        "同类产品：移动电源",
-        "同类产品：电源"
+        "同类产品：电源",
+        "同类产品：移动电源"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -100645,9 +100645,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电磁干扰滤波器",
-        "同类产品：音频过滤器（非电磁干扰滤波器）",
-        "同类产品：非电磁干扰滤波器"
+        "同类产品：滤波器（非电磁干扰滤波器）",
+        "同类产品：滤波器",
+        "同类产品：电磁干扰滤波器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -102056,9 +102056,9 @@
       "actualCode": "8528722200",
       "companyProduct": true,
       "companyProductMatches": [
+        "同类产品：液晶显示屏模组",
         "同类产品：显示屏",
-        "同类产品：液晶显示模组",
-        "同类产品：液晶显示器"
+        "同类产品：液晶显示板模组"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -104583,9 +104583,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
+        "同类产品：USB连接线",
         "同类产品：USB连接器",
-        "同类产品：天线",
-        "同类产品：USB连接线"
+        "同类产品：天线"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -106807,9 +106807,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电源",
-        "同类产品：高度传感器",
-        "同类产品：传感器"
+        "同类产品：电机",
+        "同类产品：半导体功率模块",
+        "同类产品：电源"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -109485,9 +109485,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：存储用集成电路",
+        "同类产品：未封装集成电路",
+        "同类产品：集成电路测试仪（旧）"
       ],
       "peerCompany": "伟创力体系",
       "peerMatches": [
@@ -110398,9 +110398,9 @@
         "HS 前10位（申报商品编号）：3926909090",
         "HS 前10位（申报商品编号）：8504409999",
         "HS 前10位（申报商品编号）：8518100000",
-        "同类产品：电源适配器外壳",
-        "同类产品：麦克风网罩",
-        "同类产品：电源适配器（含转接头）"
+        "同类产品：适配器",
+        "同类产品：电源适配器",
+        "同类产品：麦克风护套"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -111158,8 +111158,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：8505119000",
-        "同类产品：磁铁",
-        "同类产品：钕铁硼磁铁"
+        "同类产品：钕铁硼磁铁",
+        "同类产品：磁铁"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -117853,9 +117853,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：存储用集成电路",
+        "同类产品：未封装集成电路",
+        "同类产品：电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -122099,9 +122099,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：排插充电器",
-        "同类产品：有线充电器",
-        "同类产品：支架充电器用"
+        "同类产品：手机充电器",
+        "同类产品：干电池充电器",
+        "同类产品：充电器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -127832,9 +127832,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：硅锗集成电路",
+        "同类产品：存储用集成电路",
+        "同类产品：集成电路测试仪(旧）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -129763,9 +129763,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：可充电锂离子聚合物电池组",
-        "同类产品：成品配件(锂离子电池组)",
-        "同类产品：旧锂离子电池"
+        "同类产品：手机下盖模组(含锂离子电池组)",
+        "同类产品：可充电锂离子电池系统",
+        "同类产品：锂离子电池组"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -134687,9 +134687,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：集成电路测试仪（旧）",
-        "同类产品：集成电路(MPU)",
-        "同类产品：集成电路(64G)"
+        "同类产品：存储用集成电路",
+        "同类产品：未封装集成电路",
+        "同类产品：集成电路测试仪（旧）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -134844,8 +134844,8 @@
       "actualCode": "9018193090",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：有接头连接线",
-        "同类产品：连接线"
+        "同类产品：连接线",
+        "同类产品：有接头连接线"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -136399,8 +136399,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：传感器",
-        "同类产品：压力传感器"
+        "同类产品：压力传感器",
+        "同类产品：传感器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -137607,8 +137607,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（申报商品编号）：9030849000",
-        "同类产品：印刷电路板",
-        "同类产品：电路板"
+        "同类产品：电路板",
+        "同类产品：印刷电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -142132,9 +142132,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：柔性印刷电路板（新）",
-        "同类产品：印刷电路板夹具",
-        "同类产品：印刷电路板组件"
+        "同类产品：电路板",
+        "同类产品：印刷电路板（四层以上）",
+        "同类产品：柔性印刷电路板自动折弯机"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -143656,9 +143656,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
+        "同类产品：电机",
         "同类产品：地磅显示器",
-        "同类产品：显示器",
-        "同类产品：液晶显示器"
+        "同类产品：显示器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -144622,9 +144622,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
+        "同类产品：磁铁组件",
         "同类产品：磁铁",
-        "同类产品：磁铁组",
-        "同类产品：磁铁组件"
+        "同类产品：磁铁组"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -146260,9 +146260,9 @@
       "actualCode": "7326909000；7307990000；7307910000；7215500000",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：[M]连接器",
+        "同类产品：电路连接器",
         "同类产品：电路板固定块",
-        "同类产品：连接器4"
+        "同类产品：适配器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -146722,7 +146722,7 @@
         "HS 前10位（实际商品编号）：8456110090",
         "HS 前10位（实际商品编号）：8528521100",
         "同类产品：地磅显示器",
-        "同类产品：散热器",
+        "同类产品：激光雕刻机",
         "同类产品：显示器"
       ],
       "peerCompany": "",
@@ -148146,9 +148146,9 @@
         "HS 前10位（实际商品编号）：7326901990",
         "HS 前10位（实际商品编号）：8483409090",
         "HS 前10位（实际商品编号）：8543909000",
-        "同类产品：传感器",
-        "同类产品：控制器",
-        "同类产品：线圈"
+        "同类产品：丝杆模组",
+        "同类产品：线圈",
+        "同类产品：控制器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -150702,8 +150702,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：印刷电路板",
-        "同类产品：电路板"
+        "同类产品：电路板",
+        "同类产品：印刷电路板"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -160115,8 +160115,8 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：数据线",
-        "同类产品：耳机"
+        "同类产品：耳机",
+        "同类产品：数据线"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -160601,9 +160601,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：服务器",
         "同类产品：服务器（旧）",
-        "同类产品：服务器(旧)"
+        "同类产品：服务器内存条",
+        "同类产品：服务器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -164017,9 +164017,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：胶阀控制器",
-        "同类产品：马达控制器",
-        "同类产品：电源控制器"
+        "同类产品：电调控制器",
+        "同类产品：螺杆阀控制器",
+        "同类产品：温度控制器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -166343,9 +166343,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：同轴连接器",
-        "同类产品：线缆连接器",
-        "同类产品：外壳/连接器用"
+        "同类产品：光纤连接器",
+        "同类产品：电路连接器",
+        "同类产品：接插连接器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -166397,9 +166397,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：加速度传感器",
-        "同类产品：无线网络适配器",
-        "同类产品：高度传感器"
+        "同类产品：适配器",
+        "同类产品：有线充电适配器",
+        "同类产品：适配器（旧）"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -167007,8 +167007,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "同类产品：大气压力传感器",
-        "同类产品：传感器",
-        "同类产品：压力传感器"
+        "同类产品：压力传感器",
+        "同类产品：位置传感器"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -167060,9 +167060,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：电源",
-        "同类产品：传感器",
-        "同类产品：集成电路（中央处理器）"
+        "同类产品：电机",
+        "同类产品：直流伺服电机",
+        "同类产品：伺服电机"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -172686,9 +172686,13 @@
         {
           "primary": "申报不实",
           "secondary": "数量申报不实"
+        },
+        {
+          "primary": "申报不实",
+          "secondary": "货物未申报"
         }
       ],
-      "reason": "数量申报不实",
+      "reason": "数量申报不实；货物未申报",
       "lawInspectionObject": "",
       "secondaryItem": "不适用",
       "cargo": "半导体测试仪专用主板",
@@ -172717,7 +172721,7 @@
       "originalUrl": "",
       "originalLabel": "暂未上传",
       "ocrText": "",
-      "searchText": "202610167 荣关法制缉违字〔2026〕4号 荣成海关 青岛海关 深圳市革恩半导体有限公司 申报不实 ['申报不实'] 数量申报不实  不适用 半导体测试仪专用主板      2026年7月16日，当事人委托山东海通国际货运代理有限公司以一般贸易方式向海关申报出口半导体测试仪专用主板555个，报关单号为420920260000094127，申报价格为603973.2美元（折合人民币约为411.2816万元）。经查验，实际出口货物为半导体测试仪专用主板412个，实际应申报价格为448354.88美元（折合人民币约为305.3117万元）。其中包含半导体测试仪专用主板208个（已安装测试夹具）和半导体测试仪专用主板204个（未安装测试夹具）。综上已申报未出口的半导体测试仪专用主板共计143个，还有测试夹具48个未申报。  《中华人民共和国海关法》第八十六条第三项、《中华人民共和国海关行政处罚实施条例》第十五条第五项、《中华人民共和国海关行政处罚裁量基准（一）》第八条第七项第3目和第十六条 出口申报前应核实实际出口货物数量及价格，确保申报数量、价格等要素与实际一致，避免因数量虚报或价格申报不实影响国家出口退税管理。 "
+      "searchText": "202610167 荣关法制缉违字〔2026〕4号 荣成海关 青岛海关 深圳市革恩半导体有限公司 申报不实 ['申报不实'] 数量申报不实；货物未申报  不适用 半导体测试仪专用主板      2026年7月16日，当事人委托山东海通国际货运代理有限公司以一般贸易方式向海关申报出口半导体测试仪专用主板555个，报关单号为420920260000094127，申报价格为603973.2美元（折合人民币约为411.2816万元）。经查验，实际出口货物为半导体测试仪专用主板412个，实际应申报价格为448354.88美元（折合人民币约为305.3117万元）。其中包含半导体测试仪专用主板208个（已安装测试夹具）和半导体测试仪专用主板204个（未安装测试夹具）。综上已申报未出口的半导体测试仪专用主板共计143个，还有测试夹具48个未申报。  《中华人民共和国海关法》第八十六条第三项、《中华人民共和国海关行政处罚实施条例》第十五条第五项、《中华人民共和国海关行政处罚裁量基准（一）》第八条第七项第3目和第十六条 出口申报前应核实实际出口货物数量及价格，确保申报数量、价格等要素与实际一致，避免因数量虚报或价格申报不实影响国家出口退税管理。 "
     },
     {
       "id": "202610168",
@@ -173160,9 +173164,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：蓝牙耳机固定支架",
-        "同类产品：固定件蓝牙耳机用",
-        "同类产品：蓝牙耳机金属配件"
+        "同类产品：有接头数据线",
+        "同类产品：蓝牙耳机右耳",
+        "同类产品：蓝牙耳机含充电盒"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -175228,9 +175232,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：无线充电盒",
+        "同类产品：无线充电笔盒",
         "同类产品：无线充电模组",
-        "同类产品：无线充电治具"
+        "同类产品：无线充电装置"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -175582,9 +175586,9 @@
       "actualCode": "",
       "companyProduct": true,
       "companyProductMatches": [
-        "同类产品：开关（带数据线）",
-        "同类产品：数据线",
-        "同类产品：USB数据线"
+        "同类产品：有接头数据线",
+        "同类产品：数据线(无接头)",
+        "同类产品：OTG数据线"
       ],
       "peerCompany": "",
       "peerMatches": [],
@@ -184343,8 +184347,8 @@
       "companyProduct": true,
       "companyProductMatches": [
         "HS 前10位（实际商品编号）：8507600090",
-        "同类产品：二次锂电池组",
-        "同类产品：锂电池"
+        "同类产品：锂电池",
+        "同类产品：二次锂电池组"
       ],
       "peerCompany": "",
       "peerMatches": [],
