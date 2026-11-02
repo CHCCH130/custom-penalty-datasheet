@@ -1,7 +1,7 @@
 const state = {
   cases: [], dashboardRecords: [], dataVersion: '', activeView: 'dashboard', activeSignal: '', activeRiskType: '', activeRiskSecondary: '', activeRiskItem: '', activeRiskProduct: '', activeChartType: '', activeCustoms: '', activePenaltyCustoms: '', majorCasesExpanded: false, charts: {},
   dashboardFilters: { start: '', end: '', query: '' },
-  detailFilters: { start: '', end: '', scope: 'all', customs: '', penaltyCustoms: '', type: '', query: '' }, dashboardScrollY: 0,
+  detailFilters: { start: '', end: '', scope: 'all', customs: '', penaltyCustoms: '', type: '', secondary: '', query: '' }, dashboardScrollY: 0,
   drillQuery: '',
   customsQuery: '',
   sort: { field: 'penaltyDate', direction: 'desc' }, page: 1, pageSize: 20
@@ -81,7 +81,7 @@ function formatDateZh(value) {
 }
 function dashboardCases() { const { start, end, query } = state.dashboardFilters; const q = query.toLowerCase(); return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!start || date >= start) && (!end || date <= end) && (!q || clean(item.searchText).toLowerCase().includes(q)); }); }
 function signalRecords(id) { const records = state.dashboardRecords; if (id === 'company') return records.filter(item => item.companyProduct); if (id === 'peer') return records.filter(item => item.peerCompany); return records; }
-function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.penaltyCustoms || item.customs === f.penaltyCustoms) && (!f.type || typesOf(item).includes(f.type)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
+function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.penaltyCustoms || item.customs === f.penaltyCustoms) && (!f.type || typesOf(item).includes(f.type)) && (!f.secondary || secondaryActions(item, f.type).includes(f.secondary)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
 
 function datedRecords(records, monthsAgoStart, monthsAgoEnd = 0) {
   const dates = records.map(caseDate).filter(Boolean); if (!dates.length) return [];
@@ -270,17 +270,29 @@ function renderTypeBreakdown(records) {
   target.innerHTML = `<div class="type-breakdown-head"><strong>${escapeHtml(primary)} · 违法行为（共${selected.length}起）</strong></div><p>各违法行为占“${escapeHtml(primary)}”案件的比例；复合违法行为会同时计入对应项目。</p><ol>${rows.map(([name, count], index) => {
     const label = `${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}`, statistic = `${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%`;
     return primary === '商品归类' && name === '商品编号申报错误'
-      ? `<li class="hs-action-row"><button class="hs-open-drill" type="button" data-open-hs-drill aria-controls="classification-drill" aria-expanded="${!!window.CustomsClassificationDrill?.isOpen()}"><span>${label}</span><b>${statistic}</b><small>查看案件 ›</small></button></li>`
-      : `<li><span>${label}</span><b>${statistic}</b></li>`;
+      ? `<li class="hs-action-row"><button class="hs-open-drill" type="button" data-open-hs-drill aria-controls="classification-drill" aria-expanded="${!!window.CustomsClassificationDrill?.isOpen()}"><span>${label}</span><b>${statistic}</b></button></li>`
+      : primary !== '商品归类' ? `<li><button class="type-behavior-link" type="button" data-type-behavior="${escapeHtml(name)}"><span>${label}</span><b>${statistic}</b></button></li>` : `<li><span>${label}</span><b>${statistic}</b></li>`;
   }).join('') || '<li>暂无违法行为数据</li>'}</ol>`;
+  target.querySelectorAll('[data-type-behavior]').forEach(button => button.addEventListener('click', () => openTypeBehaviorDetails(primary, button.dataset.typeBehavior)));
+  syncTypeBehaviorViewport();
+  requestAnimationFrame(syncTypeBehaviorViewport);
 }
+function syncTypeBehaviorViewport() {
+  const list = document.querySelector('#type-breakdown ol');
+  if (!list || !list.getClientRects().length) return;
+  const rows = [...list.children];
+  if (rows.length <= 5) { list.style.maxHeight = 'none'; return; }
+  const height = rows[4].offsetTop + rows[4].offsetHeight - rows[0].offsetTop;
+  list.style.maxHeight = `${height}px`;
+}
+window.addEventListener('resize', () => requestAnimationFrame(syncTypeBehaviorViewport));
 function renderTypeCustomsBreakdown(records) {
   const target = document.getElementById('type-customs-breakdown'), primary = state.activeChartType;
   if (!primary) { target.hidden = true; target.innerHTML = ''; return; }
   const selected = records.filter(item => typesOf(item).includes(primary));
   const rows = topEntries(countBy(selected, 'customs'), 5);
   target.hidden = false;
-  target.innerHTML = `<div class="type-breakdown-head"><strong>${escapeHtml(primary)} · 前五处罚海关</strong></div><p>按案件数从高到低排列。</p><ol>${rows.map(([name, count], index) => `<li><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol>`;
+  target.innerHTML = `<div class="type-breakdown-head"><strong>${escapeHtml(primary)} · 前五处罚海关</strong></div><ol>${rows.map(([name, count], index) => `<li><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol>`;
 }
 function customsTooltip(params, records) { const point = Array.isArray(params) ? params[0] : params, name = point?.axisValue || point?.name || '', selected = records.filter(item => item.parentCustoms === name), leaders = topEntries(countByType(selected), 3); const lines = leaders.map(([type, value], index) => `${index + 1}. ${escapeHtml(type)}：${value} 起（${((value / Math.max(selected.length, 1)) * 100).toFixed(1)}%）`).join('<br>'); return `<strong>${escapeHtml(name)}</strong><br>案件数量：${selected.length} 起<br><span class="tip-caption">处罚类型 TOP 3</span><br>${lines || '暂无数据'}`; }
 function renderCustomsDistributionSummary(records) {
@@ -293,7 +305,7 @@ function renderCustomsDistributionSummary(records) {
   if (!penaltyCustoms.some(([name]) => name === state.activePenaltyCustoms)) state.activePenaltyCustoms = penaltyCustoms[0]?.[0] || '';
   const selectedPenalty = selected.filter(item => item.customs === state.activePenaltyCustoms);
   const typeRows = topEntries(countByType(selectedPenalty), 3);
-  target.innerHTML = `<div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activeCustoms)} · 处罚海关 TOP 5</strong><small>点击海关名称查看其处罚类型</small></div><ol>${penaltyCustoms.map(([name, count], index) => `<li><button type="button" class="customs-summary-button ${name === state.activePenaltyCustoms ? 'is-selected' : ''}" data-penalty-customs="${escapeHtml(name)}"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol></div><div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activePenaltyCustoms || '处罚海关')} · 处罚类型 TOP 3</strong><small>按案件数从高到低排列</small></div><ol>${typeRows.map(([name, count], index) => `<li><button type="button" class="customs-summary-button customs-type-link" data-customs-type="${escapeHtml(name)}" title="查看${escapeHtml(state.activePenaltyCustoms)}的${escapeHtml(name)}案件明细"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selectedPenalty.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚类型数据</li>'}</ol></div>`;
+  target.innerHTML = `<div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activeCustoms)} · 处罚海关 TOP 5</strong><small>点击海关名称查看其处罚类型</small></div><ol>${penaltyCustoms.map(([name, count], index) => `<li><button type="button" class="customs-summary-button ${name === state.activePenaltyCustoms ? 'is-selected' : ''}" data-penalty-customs="${escapeHtml(name)}"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selected.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚海关数据</li>'}</ol></div><div class="customs-summary-block"><div class="customs-summary-head"><strong>${escapeHtml(state.activePenaltyCustoms || '处罚海关')} · 处罚类型 TOP 3</strong><small>点击可跳转至案例明细</small></div><ol>${typeRows.map(([name, count], index) => `<li><button type="button" class="customs-summary-button customs-type-link" data-customs-type="${escapeHtml(name)}" title="查看${escapeHtml(state.activePenaltyCustoms)}的${escapeHtml(name)}案件明细"><span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(name)}</span><b>${count} 起 · ${((count / Math.max(selectedPenalty.length, 1)) * 100).toFixed(1)}%</b></button></li>`).join('') || '<li>暂无处罚类型数据</li>'}</ol></div>`;
   target.querySelectorAll('[data-customs-type]').forEach(button => button.addEventListener('click', () => openCustomsDetails(button.dataset.customsType || '')));
   target.querySelectorAll('[data-penalty-customs]').forEach(button => button.addEventListener('click', () => { state.activePenaltyCustoms = button.dataset.penaltyCustoms || ''; renderCustomsDistributionSummary(records); }));
 }
@@ -324,9 +336,9 @@ function renderCharts(records) {
   renderCustomsDistributionSummary(records);
 }
 function recordsToCsv(records, detailFormat = false) {
-  const headers = ['处罚决定书文号', '处罚海关', '处罚日期', '违法日期', '当事人', '涉案货物', '品牌', '规格型号', '其他要素', '处罚原因', '检验检疫对象', '申报商品编号', '实际商品编码', '涉案金额（万元）', '违法经营额（万元）', '漏缴税金额（万元）', '罚款金额（万元）', '追缴金额（万元）', '处罚合计（万元）', detailFormat ? '罚款倍数' : '罚款幅度', '违法行为一级分类', '违法行为二级分类', '涉案物项二级分类', '直属海关'];
+  const headers = ['处罚决定书文号', '处罚海关', '处罚日期', '违法日期', '当事人', '处罚原因', '涉案货物', '品牌', '规格型号', '其他要素', '检验检疫对象', '申报商品编号', '实际商品编码', '涉案金额（万元）', '违法经营额（万元）', '漏缴税金额（万元）', '罚款金额（万元）', '追缴金额（万元）', '处罚合计（万元）', detailFormat ? '罚款倍数' : '罚款幅度', '违法行为一级分类', '违法行为二级分类', '涉案物项二级分类', '直属海关'];
   const rows = records.map(item => [
-    item.decisionNo, item.customs, item.penaltyDate, item.violationDate, item.party, item.cargo, item.brand || '', item.specification || '', item.otherElements || '', item.reason, item.lawInspectionObject || '',
+    item.decisionNo, item.customs, item.penaltyDate, item.violationDate, item.party, item.reason, item.cargo, item.brand || '', item.specification || '', item.otherElements || '', item.lawInspectionObject || '',
     item.declaredCode, item.actualCode, wan(item.amount), wan(item.illegalOperationAmount), wan(item.taxUnderpaymentAmount),
     wan(item.fine), wan(item.recoveryAmount), wan(detailFormat ? detailPenaltyTotal(item) : penaltyTotal(item)), detailFormat ? detailFineMultiple(item.fineRate) : rate(item.fineRate),
     (item.types || [item.type]).join('、'), item.reason || '', item.secondaryItem || '', item.parentCustoms
@@ -389,8 +401,8 @@ function detailCell(content, label, className = '') { return `<td${className ? `
 function row(item) { return `<tr>${[
   detailCell(escapeHtml(item.decisionNo), '处罚决定书文号'), detailCell(escapeHtml(item.customs), '处罚海关'),
   detailCell(escapeHtml(item.penaltyDate), '处罚日期', 'detail-date-cell'), detailCell(escapeHtml(item.violationDate), '违法日期', 'detail-date-cell'),
-  detailCell(partyCell(item), '当事人'), detailCell(escapeHtml(item.cargo), '涉案货物'),
-  detailCell(escapeHtml(item.brand || ''), '品牌'), detailCell(escapeHtml(item.specification || ''), '规格型号'), detailCell(escapeHtml(item.otherElements || ''), '其他要素'), detailCell(factsCell(item), '处罚原因'),
+  detailCell(partyCell(item), '当事人'), detailCell(factsCell(item), '处罚原因'), detailCell(escapeHtml(item.cargo), '涉案货物'),
+  detailCell(escapeHtml(item.brand || ''), '品牌'), detailCell(escapeHtml(item.specification || ''), '规格型号'), detailCell(escapeHtml(item.otherElements || ''), '其他要素'),
   detailCell(escapeHtml(item.declaredCode), '申报商品编号'), detailCell(escapeHtml(item.actualCode), '实际商品编码'),
   detailCell(wan(item.amount), '涉案金额（万元）', 'number-cell'), detailCell(wan(item.illegalOperationAmount), '违法经营额（万元）', 'number-cell'),
   detailCell(wan(item.taxUnderpaymentAmount), '漏缴税金额（万元）', 'number-cell'), detailCell(wan(item.fine), '罚款金额（万元）', 'number-cell'),
@@ -399,7 +411,7 @@ function row(item) { return `<tr>${[
 ].join('')}</tr>`; }
 function syncDetailCellScrolling() { document.querySelectorAll('#detail-table .detail-cell-scroll').forEach(cell => { const scrollable = cell.clientHeight > 0 && cell.scrollHeight > cell.clientHeight + 1; cell.classList.toggle('is-scrollable', scrollable); if (scrollable) cell.setAttribute('tabindex', '0'); else cell.removeAttribute('tabindex'); }); }
 function sorted(records) { const numeric = new Set(['amount', 'illegalOperationAmount', 'taxUnderpaymentAmount', 'fine', 'recoveryAmount', 'penaltyAmount', 'fineRate']); return records.slice().sort((left, right) => { const a = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(left) : left[state.sort.field], b = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(right) : right[state.sort.field], aMissing = a === null || a === undefined || a === '', bMissing = b === null || b === undefined || b === ''; if (aMissing || bMissing) return aMissing === bMissing ? 0 : (aMissing ? 1 : -1); const result = numeric.has(state.sort.field) ? Number(a) - Number(b) : String(a).localeCompare(String(b), 'zh-CN'); return state.sort.direction === 'asc' ? result : -result; }); }
-function renderDetails() { const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="20">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
+function renderDetails() { renderDetailBehaviorFilter();  const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="20">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
 function syncPenaltyCustomsOptions() {
   const parent = state.detailFilters.customs;
   const selected = state.detailFilters.penaltyCustoms;
@@ -407,15 +419,26 @@ function syncPenaltyCustomsOptions() {
   detailFields.penaltyCustoms.value = Array.from(detailFields.penaltyCustoms.options).some(option => option.value === selected) ? selected : '';
   state.detailFilters.penaltyCustoms = detailFields.penaltyCustoms.value;
 }
+function openTypeBehaviorDetails(type, secondary) {
+  state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: '', penaltyCustoms: '', type, secondary, scope: 'all' };
+  Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key] || ''; });
+  syncPenaltyCustomsOptions(); state.page = 1; renderDetails(); switchView('details');
+}
+function renderDetailBehaviorFilter() {
+  const target = document.getElementById('detail-behavior-filter');
+  target.hidden = !state.detailFilters.secondary;
+  target.innerHTML = state.detailFilters.secondary ? `违法行为：<strong>${escapeHtml(state.detailFilters.secondary)}</strong> <button type="button">取消违法行为筛选</button>` : '';
+  target.querySelector('button')?.addEventListener('click', () => { state.detailFilters.secondary = ''; state.page = 1; renderDetails(); });
+}
 function openCustomsDetails(type) {
-  state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: state.activeCustoms, penaltyCustoms: state.activePenaltyCustoms, type, scope: 'all' };
+  state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: state.activeCustoms, penaltyCustoms: state.activePenaltyCustoms, type, secondary: '', scope: 'all' };
   Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key]; });
   syncPenaltyCustomsOptions();
   state.page = 1;
   renderDetails();
   switchView('details');
 }
-function updateDetailFilters() { Object.entries(detailFields).forEach(([key, field]) => { state.detailFilters[key] = clean(field.value); }); syncPenaltyCustomsOptions(); state.page = 1; renderDetails(); }
+function updateDetailFilters() { if (state.detailFilters.type !== clean(detailFields.type.value)) state.detailFilters.secondary = '';  Object.entries(detailFields).forEach(([key, field]) => { state.detailFilters[key] = clean(field.value); }); syncPenaltyCustomsOptions(); state.page = 1; renderDetails(); }
 function changeDetailPage(step) {
   document.documentElement.style.overflowAnchor = 'none';
   state.page += step;
@@ -426,6 +449,17 @@ function changeDetailPage(step) {
 function updateDashboardFilters() { state.dashboardFilters.start = clean(document.getElementById('dashboard-start-date').value); state.dashboardFilters.end = clean(document.getElementById('dashboard-end-date').value); state.dashboardFilters.query = ''; state.activeSignal = ''; state.activeRiskType = ''; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; state.activeChartType = window.CustomsClassificationDrill?.isOpen() ? '商品归类' : ''; state.activeCustoms = ''; state.activePenaltyCustoms = ''; state.drillQuery = ''; renderDashboard(); }
 function switchView(view) {
   const previous = state.activeView;
+  if (previous === 'details' && view === 'dashboard') {
+    state.detailFilters = { start: '', end: '', query: '', customs: '', penaltyCustoms: '', type: '', secondary: '', scope: 'all' };
+    Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key]; });
+    syncPenaltyCustomsOptions();
+    state.page = 1; state.pageSize = 20;
+    state.sort = { field: 'penaltyDate', direction: 'desc' };
+    document.getElementById('detail-page-size').value = '20';
+    renderDetails();
+    document.querySelector('#details-panel .table-scroll').scrollLeft = 0;
+  }
+
   if (previous === 'dashboard' && view === 'details') state.dashboardScrollY = window.scrollY;
   document.documentElement.style.overflowAnchor = 'none';
   state.activeView = view;
@@ -436,7 +470,7 @@ function switchView(view) {
   document.getElementById('view-switch').setAttribute('aria-label', dashboard ? '进入案例明细' : '返回风险看板');
   if (previous !== view) window.scrollTo({ top: dashboard ? state.dashboardScrollY : 0, left: 0, behavior: 'instant' });
   requestAnimationFrame(() => {
-    if (dashboard) { Object.values(state.charts).forEach(chart => chart.resize()); syncMajorCaseViewport(); }
+    if (dashboard) { Object.values(state.charts).forEach(chart => chart.resize()); syncMajorCaseViewport(); syncTypeBehaviorViewport(); }
     else syncDetailCellScrolling();
     if (previous !== view) window.scrollTo({ top: dashboard ? state.dashboardScrollY : 0, left: 0, behavior: 'instant' });
     window.dispatchEvent(new Event('scroll'));
@@ -473,7 +507,7 @@ document.getElementById('detail-sort-order').addEventListener('click', () => { s
 document.getElementById('detail-page-size').addEventListener('change', event => { state.pageSize = Number(event.target.value); state.page = 1; renderDetails(); });
 document.getElementById('detail-prev-page').addEventListener('click', () => changeDetailPage(-1));
 document.getElementById('detail-next-page').addEventListener('click', () => changeDetailPage(1));
-document.getElementById('detail-reset-filters').addEventListener('click', () => { Object.entries(detailFields).forEach(([key, field]) => { field.value = key === 'scope' ? 'all' : ''; }); updateDetailFilters(); });
+document.getElementById('detail-reset-filters').addEventListener('click', () => { state.detailFilters.secondary = '';  Object.entries(detailFields).forEach(([key, field]) => { field.value = key === 'scope' ? 'all' : ''; }); updateDetailFilters(); });
 document.getElementById('detail-export').addEventListener('click', exportDetailResults);
 document.getElementById('view-switch').addEventListener('click', () => switchView(state.activeView === 'dashboard' ? 'details' : 'dashboard'));
 document.getElementById('back-to-dashboard').addEventListener('click', () => switchView('dashboard'));

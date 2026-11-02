@@ -455,3 +455,49 @@ html, body { overflow-anchor: none; }
 .major-cases-list:focus-visible { outline:2px solid var(--theme-accent,#168d90); outline-offset:3px; }
 .major-cases-footer { display:flex; justify-content:flex-end; margin-top:14px; }
 .major-cases-footer button { min-width:80px; }
+
+/* 2026-11-02: behavior links, readable filters, narrow neutral scrollbars. */
+.type-behavior-link { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; border:0; padding:3px 0; color:inherit; background:transparent; text-align:left; font:inherit; cursor:pointer; }
+.type-behavior-link:hover span { text-decoration:underline; }
+.type-behavior-link:focus-visible { outline:2px solid var(--theme-accent,#168d90); }
+.type-navigation-note { margin:12px 18px 18px; color:var(--theme-muted,#54768b); font-size:12px; }
+:root[data-theme] #back-to-dashboard { background:var(--theme-accent,#168d90); border-color:var(--theme-accent,#168d90); color:#fff; font-weight:800; }
+:root[data-theme="graphite"] #back-to-dashboard { color:#10232f; }
+#back-to-dashboard:hover { filter:brightness(.92); }
+#details-panel .filter-band { display:flex; flex-wrap:wrap; gap:14px; }
+#details-panel .filter-band label { flex:1 1 150px; min-width:0; color:var(--theme-ink,#163e59); font-size:13px; font-weight:700; }
+#details-panel .filter-band .search-filter { flex:1.6 1 230px; min-width:0; }
+#details-panel .filter-band input, #details-panel .filter-band select { width:100%; min-width:0; max-width:100%; box-sizing:border-box; font-size:14px; }
+.detail-behavior-filter { margin:12px 0; color:var(--theme-ink,#163e59); font-size:13px; }
+.detail-behavior-filter button { margin-left:12px; padding:5px 9px; color:inherit; background:var(--theme-soft,#f3f9fb); border:1px solid var(--theme-line,#b8d2df); }
+:root[data-theme] #type-breakdown ol, :root[data-theme] .detail-cases-table .detail-cell-scroll { scrollbar-color:#999 transparent; scrollbar-width:thin; }
+@supports selector(::-webkit-scrollbar) {
+  :root[data-theme] #type-breakdown ol, :root[data-theme] .detail-cases-table .detail-cell-scroll { scrollbar-width:auto; }
+  #type-breakdown ol::-webkit-scrollbar, .detail-cases-table .detail-cell-scroll::-webkit-scrollbar { width:1.5px; }
+  #type-breakdown ol::-webkit-scrollbar-track, .detail-cases-table .detail-cell-scroll::-webkit-scrollbar-track { background:transparent; }
+  #type-breakdown ol::-webkit-scrollbar-thumb, .detail-cases-table .detail-cell-scroll::-webkit-scrollbar-thumb { background:#999; border:0; border-radius:4px; }
+}
+.detail-cases-table .detail-cell-scroll { width:100%; }
+
+#type-breakdown .type-behavior-note { margin:0; padding-top:14px; margin-top:auto; font-size:12px; color:var(--theme-muted,#54768b); }
+#type-breakdown .hs-open-drill { grid-template-columns:minmax(0,1fr) auto; }
+
+/* Five complete behavior rows; remaining rows scroll in the same list. */
+#type-breakdown ol { display:block; position:relative; flex:none; overflow-y:auto; scrollbar-gutter:stable; }
+
+/* Keep the gutter stable; reveal the thumb only for hovered/focused long content. */
+:root[data-theme] .detail-cases-table .detail-cell-scroll { scrollbar-color:transparent transparent; }
+:root[data-theme] .detail-cases-table .detail-cell-scroll.is-scrollable:hover,
+:root[data-theme] .detail-cases-table .detail-cell-scroll.is-scrollable:focus-visible { scrollbar-color:#999 transparent; }
+.detail-cases-table .detail-cell-scroll::-webkit-scrollbar { width:1.5px; }
+.detail-cases-table .detail-cell-scroll::-webkit-scrollbar-thumb { background:transparent; border:0; border-radius:4px; }
+.detail-cases-table .detail-cell-scroll.is-scrollable:hover::-webkit-scrollbar-thumb,
+.detail-cases-table .detail-cell-scroll.is-scrollable:focus-visible::-webkit-scrollbar-thumb { background:#999; }
+@supports selector(::-webkit-scrollbar) {
+ :root[data-theme] .detail-cases-table .detail-cell-scroll,
+ :root[data-theme] .detail-cases-table .detail-cell-scroll.is-scrollable:hover,
+ :root[data-theme] .detail-cases-table .detail-cell-scroll.is-scrollable:focus-visible { scrollbar-color:auto; }
+}
+@media (hover:none) {
+ .detail-cases-table .detail-cell-scroll.is-scrollable::-webkit-scrollbar-thumb { background:#999; }
+}
