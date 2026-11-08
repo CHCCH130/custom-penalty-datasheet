@@ -2,6 +2,7 @@ const state = {
   cases: [], dashboardRecords: [], dataVersion: '', activeView: 'dashboard', activeSignal: '', activeRiskType: '', activeRiskSecondary: '', activeRiskItem: '', activeRiskProduct: '', activeChartType: '', activeCustoms: '', activePenaltyCustoms: '', majorCasesExpanded: false, charts: {},
   dashboardFilters: { start: '', end: '', query: '' },
   detailFilters: { start: '', end: '', scope: 'all', customs: '', penaltyCustoms: '', type: '', secondary: '', query: '' }, dashboardScrollY: 0,
+  watchedCompanies: [], watchMode: false, watchCompanyKey: '', watchDetail: null,
   drillQuery: '',
   customsQuery: '',
   sort: { field: 'penaltyDate', direction: 'desc' }, page: 1, pageSize: 20
@@ -26,6 +27,22 @@ function applyTheme(theme, rerender = true) {
 }
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 const clean = value => String(value ?? '').trim();
+// 可恢复的搜索索引在浏览器中生成，发布数据不重复保存整份事实与规则文字。
+const defaultSearchFields = ["id", "decisionNo", "customs", "parentCustoms", "party", "type", "types", "reason", "lawInspectionObject", "secondaryItem", "cargo", "brand", "specification", "otherElements", "declaredCode", "actualCode", "facts", "legalBasis", "penaltyBasis", "complianceTip", "ocrText"];
+function searchValueText(value) {
+  if (!Array.isArray(value)) return clean(value);
+  // 兼容旧版本Python列表的检索文字表示，保留原有搜索范围与匹配结果。
+  return `[${value.map(part => {
+    const text = String(part).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+    const quote = text.includes("'") && !text.includes('"') ? '"' : "'";
+    return quote + text.split(quote).join('\\' + quote) + quote;
+  }).join(', ')}]`;
+}
+function hydrateCaseSearch(records, fields = defaultSearchFields) {
+  const keys = Array.isArray(fields) && fields.length ? fields : defaultSearchFields;
+  return records.map(item => typeof item.searchText === 'string' ? item : { ...item, searchText: keys.map(key => searchValueText(item[key])).join(' ').toLowerCase() });
+}
+// 搜索索引生成结束。
 const wan = value => Number.isFinite(value) ? (value / 10000).toLocaleString('zh-CN', { maximumFractionDigits: 2 }) : '—';
 const rate = value => Number.isFinite(value) ? `${(value * 100).toLocaleString('zh-CN', { maximumFractionDigits: 2 })}%` : '—';
 const multipleOf = value => Number.isFinite(value) ? `${value.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}倍` : '—';
@@ -81,7 +98,7 @@ function formatDateZh(value) {
 }
 function dashboardCases() { const { start, end, query } = state.dashboardFilters; const q = query.toLowerCase(); return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!start || date >= start) && (!end || date <= end) && (!q || clean(item.searchText).toLowerCase().includes(q)); }); }
 function signalRecords(id) { const records = state.dashboardRecords; if (id === 'company') return records.filter(item => item.companyProduct); if (id === 'peer') return records.filter(item => item.peerCompany); return records; }
-function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.penaltyCustoms || item.customs === f.penaltyCustoms) && (!f.type || typesOf(item).includes(f.type)) && (!f.secondary || secondaryActions(item, f.type).includes(f.secondary)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
+function detailCases() { const f = state.detailFilters; return state.cases.filter(item => { const date = item.penaltyDate || ''; return (window.CustomsCompanyWatch?.matchesDetail(item) !== false) && (!f.start || date >= f.start) && (!f.end || date <= f.end) && (f.scope === 'all' || item.companyProduct) && (!f.customs || item.parentCustoms === f.customs) && (!f.penaltyCustoms || item.customs === f.penaltyCustoms) && (!f.type || typesOf(item).includes(f.type)) && (!f.secondary || secondaryActions(item, f.type).includes(f.secondary)) && (!f.query || clean(item.searchText).toLowerCase().includes(f.query.toLowerCase())); }); }
 
 function datedRecords(records, monthsAgoStart, monthsAgoEnd = 0) {
   const dates = records.map(caseDate).filter(Boolean); if (!dates.length) return [];
@@ -201,6 +218,11 @@ function caseSummary(item, peerMode) {
 }
 function renderSignalDetail(meta) {
   const target = document.getElementById('signal-detail');
+  if (meta.id === 'company' && state.watchMode && window.CustomsCompanyWatch) { window.CustomsCompanyWatch.render(target); return; }
+  if (!meta.records.length && meta.id === 'company') {
+    target.hidden = false; target.innerHTML = `<div class="signal-detail-head"><button class="company-watch-entry" data-company-watch type="button" aria-label="查看关注企业行政处罚报告">COMPANY</button><strong>公司产品风险信号 · 风险钻取</strong><button class="signal-close" type="button">收起 ×</button></div><p class="signal-empty">当前范围暂无公司产品关联案件。</p>`;
+    window.CustomsCompanyWatch?.bindEntry(target); target.querySelector('.signal-close').addEventListener('click', () => { state.activeSignal = ''; state.watchMode = false; renderRadar(); }); return;
+  }
   if (!meta.records.length) { target.hidden = false; target.innerHTML = `<p class="signal-empty">“${escapeHtml(meta.title)}”暂未匹配到案件。同行主体库可在 <code>peer_companies.json</code> 中补充。</p>`; return; }
   const typeRows = topEntries(countByType(meta.records), 999);
   const selectedType = state.activeRiskType, typeRecords = selectedType ? meta.records.filter(item => typesOf(item).includes(selectedType)) : [];
@@ -233,9 +255,10 @@ function renderSignalDetail(meta) {
   }
   const prevScrollTops = [...target.querySelectorAll('.drill-scroll, .summary-list')].map(el => el.scrollTop);
   target.hidden = false;
-  target.innerHTML = `<div class="signal-detail-head"><span>${escapeHtml(meta.tag)}</span><strong>${escapeHtml(meta.title)} · 风险钻取</strong><small>按案件数从多到少排列，可在各栏内滚动查看全部结果。</small><button class="signal-close" type="button" aria-label="收起详情">收起 ×</button></div><div class="signal-detail-grid export-drill-grid">${typeColumn}${middleColumns}${summaryColumn}</div>`;
+  target.innerHTML = `<div class="signal-detail-head">${meta.id === 'company' ? '<button class="company-watch-entry" data-company-watch type="button" aria-label="查看关注企业行政处罚报告">COMPANY</button>' : `<span>${escapeHtml(meta.tag)}</span>`}<strong>${escapeHtml(meta.title)} · 风险钻取</strong><small>按案件数从多到少排列，可在各栏内滚动查看全部结果。</small><button class="signal-close" type="button" aria-label="收起详情">收起 ×</button></div><div class="signal-detail-grid export-drill-grid">${typeColumn}${middleColumns}${summaryColumn}</div>`;
   [...target.querySelectorAll('.drill-scroll, .summary-list')].forEach((el, index) => { if (index < prevScrollTops.length) el.scrollTop = prevScrollTops[index]; });
-  target.querySelector('.signal-close').addEventListener('click', () => { state.activeSignal = ''; state.activeRiskType = ''; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; state.drillQuery = ''; renderRadar(); });
+  window.CustomsCompanyWatch?.bindEntry(target);
+  target.querySelector('.signal-close').addEventListener('click', () => { state.watchMode = false; state.activeSignal = ''; state.activeRiskType = ''; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; state.drillQuery = ''; renderRadar(); });
   target.querySelectorAll('[data-risk-type]').forEach(button => button.addEventListener('click', () => { state.activeRiskType = button.dataset.riskType; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; renderRadar(); }));
   target.querySelectorAll('[data-risk-secondary]').forEach(button => button.addEventListener('click', () => { state.activeRiskSecondary = button.dataset.riskSecondary; state.activeRiskProduct = ''; renderRadar(); }));
   target.querySelectorAll('[data-risk-item]').forEach(button => button.addEventListener('click', () => { state.activeRiskItem = button.dataset.riskItem; state.activeRiskProduct = ''; renderRadar(); }));
@@ -250,6 +273,14 @@ function renderSignalDetail(meta) {
   }));
   const drillQueryInput = target.querySelector('#drill-query');
   const applyDrillSearch = () => { state.drillQuery = clean(drillQueryInput?.value); renderRadar(); };
+  // 原生叉号和键盘清空只改变input.value，必须同时清除已提交的关键词。
+  const clearDrillSearchIfEmpty = () => {
+    if (clean(drillQueryInput.value) || !state.drillQuery) return;
+    applyDrillSearch();
+    target.querySelector('#drill-query')?.focus();
+  };
+  drillQueryInput.addEventListener('input', clearDrillSearchIfEmpty);
+  drillQueryInput.addEventListener('search', clearDrillSearchIfEmpty);
   target.querySelector('#drill-search').addEventListener('click', applyDrillSearch);
   drillQueryInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); applyDrillSearch(); } });
   target.querySelector('#drill-export').addEventListener('click', () => exportDrillSummary(meta));
@@ -384,6 +415,7 @@ function updateMetricTriggers() {
   });
 }
 function toggleSignal(id) {
+  state.watchMode = false;
   const opening = state.activeSignal !== id;
   state.activeSignal = opening ? id : '';
   state.activeRiskType = ''; state.activeRiskSecondary = ''; state.activeRiskItem = ''; state.activeRiskProduct = ''; state.drillQuery = '';
@@ -411,7 +443,7 @@ function row(item) { return `<tr>${[
 ].join('')}</tr>`; }
 function syncDetailCellScrolling() { document.querySelectorAll('#detail-table .detail-cell-scroll').forEach(cell => { const scrollable = cell.clientHeight > 0 && cell.scrollHeight > cell.clientHeight + 1; cell.classList.toggle('is-scrollable', scrollable); if (scrollable) cell.setAttribute('tabindex', '0'); else cell.removeAttribute('tabindex'); }); }
 function sorted(records) { const numeric = new Set(['amount', 'illegalOperationAmount', 'taxUnderpaymentAmount', 'fine', 'recoveryAmount', 'penaltyAmount', 'fineRate']); return records.slice().sort((left, right) => { const a = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(left) : left[state.sort.field], b = state.sort.field === 'penaltyAmount' ? detailPenaltyTotal(right) : right[state.sort.field], aMissing = a === null || a === undefined || a === '', bMissing = b === null || b === undefined || b === ''; if (aMissing || bMissing) return aMissing === bMissing ? 0 : (aMissing ? 1 : -1); const result = numeric.has(state.sort.field) ? Number(a) - Number(b) : String(a).localeCompare(String(b), 'zh-CN'); return state.sort.direction === 'asc' ? result : -result; }); }
-function renderDetails() { renderDetailBehaviorFilter();  const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="20">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
+function renderDetails() { window.CustomsCompanyWatch?.renderDetailFilter(); renderDetailBehaviorFilter();  const records = sorted(detailCases()), totalPages = Math.max(1, Math.ceil(records.length / state.pageSize)); state.page = Math.min(Math.max(1, state.page), totalPages); const rows = records.slice((state.page - 1) * state.pageSize, state.page * state.pageSize); document.getElementById('detail-table').innerHTML = rows.length ? rows.map(row).join('') : '<tr><td colspan="20">暂无符合条件的案件</td></tr>'; requestAnimationFrame(syncDetailCellScrolling); document.getElementById('detail-page-info').textContent = `第 ${state.page} / ${totalPages} 页`; document.getElementById('detail-count').textContent = `共 ${records.length} 起`; document.getElementById('detail-prev-page').disabled = state.page <= 1; document.getElementById('detail-next-page').disabled = state.page >= totalPages; document.getElementById('detail-sort-field').value = state.sort.field; document.getElementById('detail-sort-order').textContent = state.sort.direction === 'desc' ? '↓' : '↑'; }
 function syncPenaltyCustomsOptions() {
   const parent = state.detailFilters.customs;
   const selected = state.detailFilters.penaltyCustoms;
@@ -420,6 +452,7 @@ function syncPenaltyCustomsOptions() {
   state.detailFilters.penaltyCustoms = detailFields.penaltyCustoms.value;
 }
 function openTypeBehaviorDetails(type, secondary) {
+  state.watchDetail = null;
   state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: '', penaltyCustoms: '', type, secondary, scope: 'all' };
   Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key] || ''; });
   syncPenaltyCustomsOptions(); state.page = 1; renderDetails(); switchView('details');
@@ -431,6 +464,7 @@ function renderDetailBehaviorFilter() {
   target.querySelector('button')?.addEventListener('click', () => { state.detailFilters.secondary = ''; state.page = 1; renderDetails(); });
 }
 function openCustomsDetails(type) {
+  state.watchDetail = null;
   state.detailFilters = { start: state.dashboardFilters.start, end: state.dashboardFilters.end, query: state.dashboardFilters.query || '', customs: state.activeCustoms, penaltyCustoms: state.activePenaltyCustoms, type, secondary: '', scope: 'all' };
   Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key]; });
   syncPenaltyCustomsOptions();
@@ -450,6 +484,7 @@ function updateDashboardFilters() { state.dashboardFilters.start = clean(documen
 function switchView(view) {
   const previous = state.activeView;
   if (previous === 'details' && view === 'dashboard') {
+    state.watchDetail = null;
     state.detailFilters = { start: '', end: '', query: '', customs: '', penaltyCustoms: '', type: '', secondary: '', scope: 'all' };
     Object.entries(detailFields).forEach(([key, field]) => { field.value = state.detailFilters[key]; });
     syncPenaltyCustomsOptions();
@@ -478,8 +513,8 @@ function switchView(view) {
   });
 }
 
-function openFacts(id) { const item = state.cases.find(caseItem => caseItem.id === id); if (!item) return; document.getElementById('facts-title').textContent = `${item.id} · ${item.reason || '违法事实'}`; document.getElementById('facts-content').textContent = item.facts || '案例库暂未填写违法事实。'; dialog.showModal(); }
-function applyPayload(payload, initial = false) { const version = payload.version || `${payload.updatedAt || ''}:${(payload.cases || []).length}`; if (!initial && version === state.dataVersion) return false; state.cases = (payload.cases || []).filter(isVisibleCase); setOptions(detailFields.customs, unique(state.cases.map(item => item.parentCustoms)), '全部直属海关'); setOptions(detailFields.type, unique(state.cases.flatMap(typesOf)), '全部类型'); syncPenaltyCustomsOptions(); state.dataVersion = version; if (initial) { state.charts.type = echarts.init(document.getElementById('type-chart')); state.charts.customs = echarts.init(document.getElementById('customs-chart')); state.charts.type.on('click', params => { state.activeChartType = params.name; renderTypeBreakdown(state.dashboardRecords); renderTypeCustomsBreakdown(state.dashboardRecords); }); state.charts.customs.on('click', params => { state.activeCustoms = params.name || ''; state.activePenaltyCustoms = ''; renderCustomsDistributionSummary(state.dashboardRecords); }); } status.textContent = `已加载 ${state.cases.length.toLocaleString('zh-CN')} 起案件`; renderDashboard(); renderDetails(); return true; }
+function openFacts(id) { const item = (state.activeView === 'details' ? detailCases() : state.cases).find(caseItem => caseItem.id === id); if (!item) return; document.getElementById('facts-title').textContent = `${item.id} · ${item.reason || '违法事实'}`; document.getElementById('facts-content').textContent = item.facts || '案例库暂未填写违法事实。'; dialog.showModal(); }
+function applyPayload(payload, initial = false) { const version = payload.version || `${payload.updatedAt || ''}:${(payload.cases || []).length}`; if (!initial && version === state.dataVersion) return false; state.cases = hydrateCaseSearch((payload.cases || []).filter(isVisibleCase), payload.searchFields); state.watchedCompanies = Array.isArray(payload.watchedCompanies) ? payload.watchedCompanies : []; setOptions(detailFields.customs, unique(state.cases.map(item => item.parentCustoms)), '全部直属海关'); setOptions(detailFields.type, unique(state.cases.flatMap(typesOf)), '全部类型'); syncPenaltyCustomsOptions(); state.dataVersion = version; if (initial) { state.charts.type = echarts.init(document.getElementById('type-chart')); state.charts.customs = echarts.init(document.getElementById('customs-chart')); state.charts.type.on('click', params => { state.activeChartType = params.name; renderTypeBreakdown(state.dashboardRecords); renderTypeCustomsBreakdown(state.dashboardRecords); }); state.charts.customs.on('click', params => { state.activeCustoms = params.name || ''; state.activePenaltyCustoms = ''; renderCustomsDistributionSummary(state.dashboardRecords); }); } status.textContent = `已加载 ${state.cases.length.toLocaleString('zh-CN')} 起案件`; renderDashboard(); renderDetails(); return true; }
 async function loadCases(initial = false) { const inline = window.__CUSTOMS_CASES_DATA__; if (window.location.protocol === 'file:' && inline) return applyPayload(inline, initial); const response = await fetch(`./data/cases.json?version=${Date.now()}`, { cache: 'no-store' }); if (!response.ok) throw new Error('数据文件不可用'); return applyPayload(await response.json(), initial); }
 async function start() { try { await loadCases(true); window.setInterval(() => loadCases().catch(error => console.warn('看板自动更新失败：', error)), 10000); } catch (error) { status.textContent = '案件数据加载失败。请确认已先生成 data/cases.json。'; console.error(error); } }
 Object.values(detailFields).forEach(field => field.addEventListener('input', updateDetailFilters));
@@ -507,7 +542,7 @@ document.getElementById('detail-sort-order').addEventListener('click', () => { s
 document.getElementById('detail-page-size').addEventListener('change', event => { state.pageSize = Number(event.target.value); state.page = 1; renderDetails(); });
 document.getElementById('detail-prev-page').addEventListener('click', () => changeDetailPage(-1));
 document.getElementById('detail-next-page').addEventListener('click', () => changeDetailPage(1));
-document.getElementById('detail-reset-filters').addEventListener('click', () => { state.detailFilters.secondary = '';  Object.entries(detailFields).forEach(([key, field]) => { field.value = key === 'scope' ? 'all' : ''; }); updateDetailFilters(); });
+document.getElementById('detail-reset-filters').addEventListener('click', () => { state.watchDetail = null; state.detailFilters.secondary = '';  Object.entries(detailFields).forEach(([key, field]) => { field.value = key === 'scope' ? 'all' : ''; }); updateDetailFilters(); });
 document.getElementById('detail-export').addEventListener('click', exportDetailResults);
 document.getElementById('view-switch').addEventListener('click', () => switchView(state.activeView === 'dashboard' ? 'details' : 'dashboard'));
 document.getElementById('back-to-dashboard').addEventListener('click', () => switchView('dashboard'));
