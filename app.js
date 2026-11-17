@@ -234,7 +234,7 @@ function renderMetrics(records) {
 
   document.getElementById('metric-cases').textContent = `${records.length.toLocaleString('zh-CN')} 起`;
 
-  document.getElementById('metric-cases-note').textContent = `更新至 ${formatDateZh(clean(state.freshness?.dataThroughDate) || latestRecognizedDateKey(state.cases) || dashboardReferenceEnd(records))}${Number(state.freshness?.pendingRecentGroups) > 0 ? ` · 另有${state.freshness.pendingRecentGroups}组近期材料待处理` : ''}`;
+  document.getElementById('metric-cases-note').textContent = `更新至 ${formatDateZh(clean(state.freshness?.dataThroughDate) || latestRecognizedDateKey(state.cases) || dashboardReferenceEnd(records))}`;
 
   document.getElementById('metric-major-cases').textContent = `${major} 起`;
 
