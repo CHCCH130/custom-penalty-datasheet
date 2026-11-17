@@ -17,7 +17,7 @@
 .watch-company-title { display:flex; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
 .watch-company-title > button { font-size:16px; }
 .watch-company-title small,.watch-stats small { color:var(--theme-muted,var(--muted)); font-size:11px; }
-.watch-stats { display:grid; grid-template-columns:.8fr 1fr 1.4fr; gap:9px; margin-bottom:15px; }
+.watch-stats { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:9px; margin-bottom:15px; overflow-x:auto; }
 .watch-stats > button,.watch-years { min-width:0; padding:10px; border:1px solid var(--theme-line,var(--line)); background:var(--theme-soft,var(--soft)); color:var(--theme-ink,var(--ink)); text-align:left; }
 .watch-stats span { display:block; color:var(--theme-muted,var(--muted)); font-size:12px; }
 .watch-stats strong { display:block; color:var(--theme-accent,var(--aqua)); font-size:23px; }
@@ -30,5 +30,11 @@
 .watch-summaries .case-summary p { max-height:9.5em; overflow-y:auto; margin-top:6px; }
 .watch-summaries .case-summary footer { flex-wrap:wrap; }
 .watch-case-open { margin-top:7px; padding:3px 7px; border:1px solid var(--theme-line,var(--line)); color:var(--theme-accent,var(--aqua)); background:var(--theme-surface,var(--panel)); font-size:12px; }
-@media(max-width:1050px) { .watch-stats { grid-template-columns:1fr 1fr; }.watch-years { grid-column:1/-1; }.watch-content { grid-template-columns:1fr; }.watch-reasons { max-height:180px; } }
+@media(max-width:1050px) { .watch-content { grid-template-columns:1fr; }.watch-reasons { max-height:180px; } }
 @media(max-width:700px) { .watch-report { grid-template-columns:1fr; }.watch-companies { max-height:220px; border-right:0; border-bottom:1px solid var(--theme-line,var(--line)); }.watch-company-title small { display:none; } }
+
+.watch-public-badge { display:inline-block; margin-left:5px; padding:1px 5px; border:1px solid #dc4545; color:#b42323; background:#fff6f6; border-radius:2px; font-size:11px; line-height:1.5; font-weight:700; white-space:nowrap; vertical-align:middle; }
+
+/* 统计按钮采用顶部排版，避免原生button将两行内容垂直居中。 */
+.watch-stats > button { display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; }
+.watch-stats > button > span,.watch-years > span { line-height:1.5; }
