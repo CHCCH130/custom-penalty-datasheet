@@ -414,7 +414,7 @@ function topProducts(records, limit = 10) {
 
 function signalMeta(id) {
 
-  const labels = { national: ['全国监管风险', '观察全国海关监管风险的高发领域、升温趋势与典型案件。', 'NATIONAL'], company: ['公司产品风险信号', '按 HS 前 10 位及同类产品名称映射公司产品风险。', 'COMPANY'], peer: ['同行风险信号', '从同行企业主体及别名库识别已发生的处罚事件。', 'PEER'] };
+  const labels = { national: ['全国监管风险', '观察全国海关监管风险的高发领域、升温趋势与典型案件。', 'NATIONAL'], company: ['公司产品风险信号', '按本案受处罚商品的明确名称及用途关联；信息不足不计入。', 'COMPANY'], peer: ['同行风险信号', '从同行企业主体及别名库识别已发生的处罚事件。', 'PEER'] };
 
   const records = signalRecords(id), topType = topEntries(countByType(records), 1)[0] || ['暂无数据', 0];
 
@@ -424,7 +424,7 @@ function signalMeta(id) {
 
 }
 
-function relevanceLabel(item) { const evidence = (item.companyProductMatches || []).join(''); return evidence.includes('HS 前10位') ? '高相关 · HS 前10位一致' : evidence.includes('同类产品') ? '中相关 · 同类产品' : '相关'; }
+function relevanceLabel(item) { return (item.companyProductMatches || []).length ? '明确关联 · 涉案商品' : '未确认关联'; }
 
 function caseSummary(item, peerMode) {
 
